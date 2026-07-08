@@ -121,12 +121,17 @@ function renderHistory() {
   `).join("");
 }
 
-document.getElementById("historyTab").onclick = () => {
+function showDashboard() {
+  document.getElementById("logPage").classList.remove("hidden");
+  document.getElementById("historyPage").classList.add("hidden");
+}
+
+function showHistory() {
+  document.getElementById("logPage").classList.add("hidden");
   document.getElementById("historyPage").classList.remove("hidden");
   renderHistory();
-};
+}
 
-document.getElementById("dashboardTab").onclick = () => {
-  document.getElementById("historyPage").classList.add("hidden");
-};
+document.getElementById("dashboardTab").addEventListener("click", showDashboard);
+document.getElementById("historyTab").addEventListener("click", showHistory);
 buildSliders();
