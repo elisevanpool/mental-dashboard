@@ -132,6 +132,6 @@ function showHistory() {
   renderHistory();
 }
 
-document.getElementById("dashboardTab").addEventListener("click", showDashboard);
+document.getElementById("logTab").addEventListener("click", showDashboard);
 document.getElementById("historyTab").addEventListener("click", showHistory);
 buildSliders();
