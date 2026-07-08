@@ -20,24 +20,11 @@ const notes = document.getElementById("notes");
 const saved = document.getElementById("saved");
 
 // ----- Helpers -----
-function moodLabel(value) {
-  if (value <= 10) return ["Crisis", "😭"];
-  if (value <= 20) return ["Panic", "😰"];
-  if (value <= 35) return ["Distressed", "😟"];
-  if (value <= 45) return ["Low", "🙁"];
-  if (value <= 55) return ["Baseline", "😐"];
-  if (value <= 70) return ["Calm", "🙂"];
-  if (value <= 85) return ["Happy", "😄"];
-  return ["Amazing", "🤩"];
-}
 
-function getEntries() {
-  return JSON.parse(localStorage.getItem("entries") || "[]");
-}
 
-function saveEntries(entries) {
-  localStorage.setItem("entries", JSON.stringify(entries));
-}
+
+
+
 
 // ----- Sliders -----
 function buildSliders() {
@@ -111,43 +98,9 @@ function saveEntry() {
 }
 
 // ----- History -----
-function renderHistory() {
-  const entries = getEntries();
 
-  if (entries.length === 0) {
-    historyList.innerHTML = "<p>No entries yet.</p>";
-    return;
-  }
 
-  historyList.innerHTML = entries.map(entry => `
-    <div class="history-card">
-      <div class="history-date">
-        ${new Date(entry.timestamp).toLocaleString()}
-      </div>
 
-      <h3>${entry.moodEmoji} ${entry.moodLabel}</h3>
-
-      <p>😊 Mood: ${entry.mood}</p>
-      <p>⚡ Energy: ${entry.energy}</p>
-      <p>😰 Anxiety: ${entry.anxiety}</p>
-      <p>🧠 OCD: ${entry.ocd}</p>
-      <p>🎯 Focus: ${entry.focus}</p>
-
-      ${entry.notes ? `<p>📝 ${entry.notes}</p>` : ""}
-
-      <button class="delete-btn" onclick="deleteEntry(${entry.id})">
-        Delete
-      </button>
-    </div>
-  `).join("");
-}
-
-function deleteEntry(id) {
-  const entries = getEntries().filter(entry => entry.id !== id);
-  saveEntries(entries);
-  renderHistory();
-  updateSummary();
-}
 
 // ----- Summary -----
 function updateSummary() {
