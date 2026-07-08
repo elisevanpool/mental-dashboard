@@ -35,7 +35,15 @@ button{width:100%;padding:16px;margin-top:12px;border:0;border-radius:18px;backg
 <button onclick="saveEntry()">Save</button>
 <div id="saved">Saved ✓</div>
 </section>
+<nav class="tabs">
+  <button id="dashboardTab">Dashboard</button>
+  <button id="historyTab">History</button>
+</nav>
 
+<section id="historyPage" class="hidden">
+  <h2>History</h2>
+  <div id="historyList"></div>
+</section>
 <section id="historyPage" class="hidden">
 <h2>History</h2>
 <div id="history"></div>

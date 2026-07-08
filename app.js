@@ -81,7 +81,7 @@ function saveEntry() {
   const entries = JSON.parse(localStorage.getItem("entries") || "[]");
   entries.unshift(entry);
   localStorage.setItem("entries", JSON.stringify(entries));
-
+renderHistory();
   document.getElementById("notes").value = "";
   document.getElementById("savedMessage").style.opacity = 1;
 
@@ -91,5 +91,42 @@ function saveEntry() {
 }
 
 document.getElementById("saveBtn").addEventListener("click", saveEntry);
+function renderHistory() {
+  const historyList = document.getElementById("historyList");
+  if (!historyList) return;
 
+  const entries = JSON.parse(localStorage.getItem("entries") || "[]");
+
+  if (entries.length === 0) {
+    historyList.innerHTML = "<p>No entries yet.</p>";
+    return;
+  }
+
+  historyList.innerHTML = entries.map(entry => `
+    <div class="history-card">
+      <div class="history-date">
+        ${new Date(entry.timestamp).toLocaleString()}
+      </div>
+
+      <strong>${entry.moodEmoji} ${entry.moodLabel}</strong><br>
+
+      😊 Mood: ${entry.mood}<br>
+      ⚡ Energy: ${entry.energy}<br>
+      😰 Anxiety: ${entry.anxiety}<br>
+      🧠 OCD: ${entry.ocd}<br>
+      🎯 Focus: ${entry.focus}
+
+      ${entry.notes ? `<p>${entry.notes}</p>` : ""}
+    </div>
+  `).join("");
+}
+
+document.getElementById("historyTab").onclick = () => {
+  document.getElementById("historyPage").classList.remove("hidden");
+  renderHistory();
+};
+
+document.getElementById("dashboardTab").onclick = () => {
+  document.getElementById("historyPage").classList.add("hidden");
+};
 buildSliders();
