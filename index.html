@@ -1,234 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111827">
-<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mental Dashboard</title>
 <style>
-:root{
-  --bg:#111827;
-  --card:#1f2937;
-  --text:#ffffff;
-  --muted:rgba(255,255,255,.68);
-  --accent:#4f46e5;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  background:linear-gradient(180deg,#111827,#0b1220);
-  color:var(--text);
-}
-.app{
-  max-width:520px;
-  margin:0 auto;
-  padding:calc(20px + env(safe-area-inset-top)) 22px calc(26px + env(safe-area-inset-bottom));
-}
-h1{
-  text-align:center;
-  font-size:30px;
-  margin:8px 0 18px;
-}
-.card{
-  background:rgba(31,41,55,.92);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;
-  padding:18px;
-  margin:14px 0;
-  box-shadow:0 14px 40px rgba(0,0,0,.22);
-}
-.top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  font-weight:800;
-  font-size:21px;
-}
-.value{
-  font-size:28px;
-}
-.label{
-  color:var(--muted);
-  margin-top:8px;
-  min-height:22px;
-}
-input[type=range]{
-  width:100%;
-  margin:16px 0 2px;
-  accent-color:white;
-}
-textarea{
-  width:100%;
-  min-height:96px;
-  resize:vertical;
-  border:0;
-  border-radius:20px;
-  padding:15px;
-  margin-top:12px;
-  background:rgba(17,24,39,.95);
-  color:white;
-  font-size:17px;
-  outline:none;
-}
-button{
-  width:100%;
-  border:0;
-  border-radius:20px;
-  padding:17px 18px;
-  margin-top:14px;
-  color:white;
-  background:var(--accent);
-  font-size:21px;
-  font-weight:800;
-}
-button.secondary{
-  background:rgba(255,255,255,.10);
-  font-size:17px;
-}
-button:active{transform:scale(.985)}
-#saved{
-  text-align:center;
-  color:#a7f3d0;
-  opacity:0;
-  transition:.25s;
-  font-weight:700;
-  margin:12px 0 0;
-}
-.small{
-  color:var(--muted);
-  text-align:center;
-  font-size:14px;
-  margin-top:14px;
-}
+body{margin:0;font-family:-apple-system;background:#111827;color:white}
+.app{max-width:520px;margin:auto;padding:24px}
+h1{text-align:center}
+.card{background:#1f2937;border-radius:22px;padding:18px;margin:14px 0}
+.row{display:flex;justify-content:space-between;font-size:22px;font-weight:bold}
+input[type=range]{width:100%;margin-top:14px}
+textarea{width:100%;height:90px;border:0;border-radius:18px;padding:14px;background:#0f172a;color:white;font-size:16px}
+button{width:100%;padding:16px;margin-top:12px;border:0;border-radius:18px;background:#4f46e5;color:white;font-size:20px;font-weight:bold}
+.nav{display:flex;gap:10px}
+.nav button{background:#374151;font-size:16px}
+.hidden{display:none}
+.entry{background:#1f2937;border-radius:18px;padding:14px;margin:12px 0}
+.small{opacity:.7;font-size:14px}
+#saved{text-align:center;opacity:0;transition:.3s;color:#a7f3d0}
 </style>
 </head>
 <body>
-<main class="app">
-  <h1>🧠 Mental Dashboard</h1>
-  <div id="sliders"></div>
-  <textarea id="notes" placeholder="Anything happen?"></textarea>
-  <button id="saveBtn">Save</button>
-  <button class="secondary" id="exportBtn">Export CSV</button>
-  <div id="saved">Saved ✓</div>
-  <div class="small"><span id="count">0</span> entries saved on this device</div>
-</main>
+<div class="app">
+<h1>🧠 Mental Dashboard</h1>
+
+<div class="nav">
+<button onclick="showPage('log')">Log</button>
+<button onclick="showPage('history')">History</button>
+</div>
+
+<section id="logPage">
+<div id="sliders"></div>
+<textarea id="notes" placeholder="Anything happen?"></textarea>
+<button onclick="saveEntry()">Save</button>
+<div id="saved">Saved ✓</div>
+</section>
+
+<section id="historyPage" class="hidden">
+<h2>History</h2>
+<div id="history"></div>
+<button onclick="exportCSV()">Export CSV</button>
+<button onclick="clearHistory()">Clear History</button>
+</section>
+</div>
 
 <script>
-const trackers = [
-  {id:"mood", name:"Mood", emoji:"😊", value:50},
-  {id:"energy", name:"Energy", emoji:"⚡", value:50},
-  {id:"anxiety", name:"Anxiety", emoji:"😰", value:50},
-  {id:"ocd", name:"OCD", emoji:"🧠", value:50},
-  {id:"focus", name:"Focus", emoji:"🎯", value:50}
+const trackers=[
+{id:"mood",name:"Mood",emoji:"😊"},
+{id:"energy",name:"Energy",emoji:"⚡"},
+{id:"anxiety",name:"Anxiety",emoji:"😰"},
+{id:"ocd",name:"OCD",emoji:"🧠"},
+{id:"focus",name:"Focus",emoji:"🎯"}
 ];
 
 function moodLabel(v){
-  if(v<=10) return ["Crisis","😭"];
-  if(v<=20) return ["Panic","😰"];
-  if(v<=35) return ["Distressed","😟"];
-  if(v<=45) return ["Low","🙁"];
-  if(v<=55) return ["Baseline","😐"];
-  if(v<=70) return ["Calm","🙂"];
-  if(v<=85) return ["Happy","😄"];
-  return ["Amazing","🤩"];
+ if(v<=10)return["Crisis","😭"];
+ if(v<=20)return["Panic","😰"];
+ if(v<=35)return["Distressed","😟"];
+ if(v<=45)return["Low","🙁"];
+ if(v<=55)return["Baseline","😐"];
+ if(v<=70)return["Calm","🙂"];
+ if(v<=85)return["Happy","😄"];
+ return["Amazing","🤩"];
 }
 
 function build(){
-  const wrap = document.getElementById("sliders");
-  wrap.innerHTML = trackers.map(t => `
-    <section class="card">
-      <div class="top">
-        <div>${t.emoji} ${t.name}</div>
-        <div class="value" id="${t.id}Value">${t.value}</div>
-      </div>
-      <input id="${t.id}" type="range" min="0" max="100" value="${t.value}">
-      <div class="label" id="${t.id}Label"></div>
-    </section>
-  `).join("");
-
-  trackers.forEach(t => {
-    document.getElementById(t.id).addEventListener("input", () => update(t.id));
-    update(t.id);
-  });
+ let html="";
+ trackers.forEach(t=>{
+  html+=`<div class="card">
+   <div class="row"><span>${t.emoji} ${t.name}</span><span id="${t.id}Val">50</span></div>
+   <input id="${t.id}" type="range" min="0" max="100" value="50" oninput="update('${t.id}')">
+   <div class="small" id="${t.id}Label"></div>
+  </div>`;
+ });
+ document.getElementById("sliders").innerHTML=html;
+ trackers.forEach(t=>update(t.id));
+ renderHistory();
 }
 
 function update(id){
-  const v = Number(document.getElementById(id).value);
-  document.getElementById(id+"Value").textContent = v;
-  if(id === "mood"){
-    const [label, emoji] = moodLabel(v);
-    document.getElementById(id+"Label").textContent = `${emoji} ${label}`;
-  } else {
-    document.getElementById(id+"Label").textContent = `${v}/100`;
-  }
+ let v=document.getElementById(id).value;
+ document.getElementById(id+"Val").innerText=v;
+ document.getElementById(id+"Label").innerText=id==="mood"?moodLabel(v)[1]+" "+moodLabel(v)[0]:v+"/100";
 }
 
-function getEntries(){
-  return JSON.parse(localStorage.getItem("mentalDashboardEntries") || "[]");
+function entries(){
+ return JSON.parse(localStorage.getItem("entries")||"[]");
 }
 
-function setEntries(entries){
-  localStorage.setItem("mentalDashboardEntries", JSON.stringify(entries));
-  document.getElementById("count").textContent = entries.length;
+function saveEntries(data){
+ localStorage.setItem("entries",JSON.stringify(data));
 }
 
 function saveEntry(){
-  const mood = Number(document.getElementById("mood").value);
-  const [moodLabelText, moodEmoji] = moodLabel(mood);
-  const entry = {
-    timestamp: new Date().toISOString(),
-    mood,
-    moodLabel: moodLabelText,
-    moodEmoji,
-    energy: Number(document.getElementById("energy").value),
-    anxiety: Number(document.getElementById("anxiety").value),
-    ocd: Number(document.getElementById("ocd").value),
-    focus: Number(document.getElementById("focus").value),
-    notes: document.getElementById("notes").value
-  };
+ let mood=document.getElementById("mood").value;
+ let info=moodLabel(mood);
+ let entry={
+  time:new Date().toLocaleString(),
+  mood:mood,
+  moodLabel:info[0],
+  moodEmoji:info[1],
+  energy:energy.value,
+  anxiety:anxiety.value,
+  ocd:ocd.value,
+  focus:focus.value,
+  notes:notes.value
+ };
+ let data=entries();
+ data.unshift(entry);
+ saveEntries(data);
+ notes.value="";
+ saved.style.opacity=1;
+ setTimeout(()=>saved.style.opacity=0,1200);
+ renderHistory();
+}
 
-  const entries = getEntries();
-  entries.push(entry);
-  setEntries(entries);
+function renderHistory(){
+ let data=entries();
+ history.innerHTML=data.length?data.map(e=>`
+  <div class="entry">
+   <div><b>${e.moodEmoji} Mood ${e.mood}</b> — ${e.moodLabel}</div>
+   <div>⚡ ${e.energy} 😰 ${e.anxiety} 🧠 ${e.ocd} 🎯 ${e.focus}</div>
+   <div class="small">${e.time}</div>
+   ${e.notes?`<p>${e.notes}</p>`:""}
+  </div>`).join(""):"<p>No entries yet.</p>";
+}
 
-  document.getElementById("notes").value = "";
-  document.getElementById("saved").style.opacity = 1;
-  if(navigator.vibrate) navigator.vibrate(25);
-  setTimeout(() => document.getElementById("saved").style.opacity = 0, 1400);
+function showPage(page){
+ logPage.classList.toggle("hidden",page!=="log");
+ historyPage.classList.toggle("hidden",page!=="history");
+ renderHistory();
+}
+
+function clearHistory(){
+ if(confirm("Clear all saved entries?")){
+  localStorage.removeItem("entries");
+  renderHistory();
+ }
 }
 
 function exportCSV(){
-  const entries = getEntries();
-  const headers = ["Timestamp","Mood","Mood Label","Mood Emoji","Energy","Anxiety","OCD","Focus","Notes"];
-  const rows = entries.map(e => [
-    e.timestamp, e.mood, e.moodLabel, e.moodEmoji, e.energy, e.anxiety, e.ocd, e.focus, e.notes
-  ]);
-  const csv = [headers, ...rows].map(row =>
-    row.map(cell => `"${String(cell ?? "").replaceAll('"','""')}"`).join(",")
-  ).join("\n");
-
-  const blob = new Blob([csv], {type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "mental-dashboard-entries.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+ let data=entries();
+ let csv="Time,Mood,Mood Label,Energy,Anxiety,OCD,Focus,Notes\n";
+ data.forEach(e=>{
+  csv+=`"${e.time}",${e.mood},"${e.moodLabel}",${e.energy},${e.anxiety},${e.ocd},${e.focus},"${e.notes||""}"\n`;
+ });
+ let blob=new Blob([csv],{type:"text/csv"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="mental-dashboard.csv";
+ a.click();
 }
-
-document.getElementById("saveBtn").addEventListener("click", saveEntry);
-document.getElementById("exportBtn").addEventListener("click", exportCSV);
 
 build();
-setEntries(getEntries());
-
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./sw.js");
-}
 </script>
 </body>
 </html>
