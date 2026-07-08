@@ -1,164 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Mental Dashboard</title>
+
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<style>
-body{margin:0;font-family:-apple-system;background:#111827;color:white}
-.app{max-width:520px;margin:auto;padding:24px}
-h1{text-align:center}
-.card{background:#1f2937;border-radius:22px;padding:18px;margin:14px 0}
-.row{display:flex;justify-content:space-between;font-size:22px;font-weight:bold}
-input[type=range]{width:100%;margin-top:14px}
-textarea{width:100%;height:90px;border:0;border-radius:18px;padding:14px;background:#0f172a;color:white;font-size:16px}
-button{width:100%;padding:16px;margin-top:12px;border:0;border-radius:18px;background:#4f46e5;color:white;font-size:20px;font-weight:bold}
-.nav{display:flex;gap:10px}
-.nav button{background:#374151;font-size:16px}
-.hidden{display:none}
-.entry{background:#1f2937;border-radius:18px;padding:14px;margin:12px 0}
-.small{opacity:.7;font-size:14px}
-#saved{text-align:center;opacity:0;transition:.3s;color:#a7f3d0}
-</style>
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <div class="app">
+
 <h1>🧠 Mental Dashboard</h1>
 
-<div class="nav">
-<button onclick="showPage('log')">Log</button>
-<button onclick="showPage('history')">History</button>
+<div class="tabs">
+<button id="logBtn">Log</button>
+<button id="historyBtn">History</button>
 </div>
 
 <section id="logPage">
+
 <div id="sliders"></div>
-<textarea id="notes" placeholder="Anything happen?"></textarea>
-<button onclick="saveEntry()">Save</button>
-<div id="saved">Saved ✓</div>
-</section>
 
+<textarea
+id="notes"
+placeholder="Anything happen today?"
+></textarea>
 
+<button id="saveBtn">
+Save Entry
+</button>
 
-<section id="historyPage" class="hidden">
-<h2>History</h2>
-<div id="history"></div>
-<button onclick="exportCSV()">Export CSV</button>
-<button onclick="clearHistory()">Clear History</button>
-</section>
+<div id="saved">
+Saved ✓
 </div>
 
-<script>
-const trackers=[
-{id:"mood",name:"Mood",emoji:"😊"},
-{id:"energy",name:"Energy",emoji:"⚡"},
-{id:"anxiety",name:"Anxiety",emoji:"😰"},
-{id:"ocd",name:"OCD",emoji:"🧠"},
-{id:"focus",name:"Focus",emoji:"🎯"}
-];
+</section>
 
-function moodLabel(v){
- if(v<=10)return["Crisis","😭"];
- if(v<=20)return["Panic","😰"];
- if(v<=35)return["Distressed","😟"];
- if(v<=45)return["Low","🙁"];
- if(v<=55)return["Baseline","😐"];
- if(v<=70)return["Calm","🙂"];
- if(v<=85)return["Happy","😄"];
- return["Amazing","🤩"];
-}
+<section id="historyPage" class="hidden">
 
-function build(){
- let html="";
- trackers.forEach(t=>{
-  html+=`<div class="card">
-   <div class="row"><span>${t.emoji} ${t.name}</span><span id="${t.id}Val">50</span></div>
-   <input id="${t.id}" type="range" min="0" max="100" value="50" oninput="update('${t.id}')">
-   <div class="small" id="${t.id}Label"></div>
-  </div>`;
- });
- document.getElementById("sliders").innerHTML=html;
- trackers.forEach(t=>update(t.id));
- renderHistory();
-}
+<h2>History</h2>
 
-function update(id){
- let v=document.getElementById(id).value;
- document.getElementById(id+"Val").innerText=v;
- document.getElementById(id+"Label").innerText=id==="mood"?moodLabel(v)[1]+" "+moodLabel(v)[0]:v+"/100";
-}
+<div id="historyList">
+No entries yet.
+</div>
 
-function entries(){
- return JSON.parse(localStorage.getItem("entries")||"[]");
-}
+</section>
 
-function saveEntries(data){
- localStorage.setItem("entries",JSON.stringify(data));
-}
+</div>
 
-function saveEntry(){
- let mood=document.getElementById("mood").value;
- let info=moodLabel(mood);
- let entry={
-  time:new Date().toLocaleString(),
-  mood:mood,
-  moodLabel:info[0],
-  moodEmoji:info[1],
-  energy:energy.value,
-  anxiety:anxiety.value,
-  ocd:ocd.value,
-  focus:focus.value,
-  notes:notes.value
- };
- let data=entries();
- data.unshift(entry);
- saveEntries(data);
- notes.value="";
- saved.style.opacity=1;
- setTimeout(()=>saved.style.opacity=0,1200);
- renderHistory();
-}
+<script src="app.js"></script>
 
-function renderHistory(){
- let data=entries();
-document.getElementById("history").innerHTML = data.length ? ...
-  <div class="entry">
-   <div><b>${e.moodEmoji} Mood ${e.mood}</b> — ${e.moodLabel}</div>
-   <div>⚡ ${e.energy} 😰 ${e.anxiety} 🧠 ${e.ocd} 🎯 ${e.focus}</div>
-   <div class="small">${e.time}</div>
-   ${e.notes?`<p>${e.notes}</p>`:""}
-  </div>`).join(""):"<p>No entries yet.</p>";
-}
-
-function showPage(page){
- logPage.classList.toggle("hidden",page!=="log");
- historyPage.classList.toggle("hidden",page!=="history");
- renderHistory();
-}
-
-function clearHistory(){
- if(confirm("Clear all saved entries?")){
-  localStorage.removeItem("entries");
-  renderHistory();
- }
-}
-
-function exportCSV(){
- let data=entries();
- let csv="Time,Mood,Mood Label,Energy,Anxiety,OCD,Focus,Notes\n";
- data.forEach(e=>{
-  csv+=`"${e.time}",${e.mood},"${e.moodLabel}",${e.energy},${e.anxiety},${e.ocd},${e.focus},"${e.notes||""}"\n`;
- });
- let blob=new Blob([csv],{type:"text/csv"});
- let a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="mental-dashboard.csv";
- a.click();
-}
-
-build();
-</script>
 </body>
 </html>
