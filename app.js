@@ -1,3 +1,8 @@
+// =====================
+// Mental Dashboard App
+// =====================
+
+// ----- Trackers -----
 const trackers = [
   { id: "mood", name: "Mood", emoji: "😊" },
   { id: "energy", name: "Energy", emoji: "⚡" },
@@ -6,6 +11,7 @@ const trackers = [
   { id: "focus", name: "Focus", emoji: "🎯" }
 ];
 
+// ----- Elements -----
 const sliders = document.getElementById("sliders");
 const logPage = document.getElementById("logPage");
 const historyPage = document.getElementById("historyPage");
@@ -13,6 +19,7 @@ const historyList = document.getElementById("historyList");
 const notes = document.getElementById("notes");
 const saved = document.getElementById("saved");
 
+// ----- Helpers -----
 function moodLabel(value) {
   if (value <= 10) return ["Crisis", "😭"];
   if (value <= 20) return ["Panic", "😰"];
@@ -32,6 +39,7 @@ function saveEntries(entries) {
   localStorage.setItem("entries", JSON.stringify(entries));
 }
 
+// ----- Sliders -----
 function buildSliders() {
   sliders.innerHTML = "";
 
@@ -42,7 +50,9 @@ function buildSliders() {
           <span>${tracker.emoji} ${tracker.name}</span>
           <span id="${tracker.id}Value">50</span>
         </div>
+
         <input id="${tracker.id}" type="range" min="0" max="100" value="50">
+
         <div class="small" id="${tracker.id}Label">50/100</div>
       </div>
     `;
@@ -67,6 +77,7 @@ function updateSlider(id) {
   }
 }
 
+// ----- Save Entry -----
 function saveEntry() {
   const mood = Number(document.getElementById("mood").value);
   const [label, emoji] = moodLabel(mood);
@@ -90,11 +101,16 @@ function saveEntry() {
 
   notes.value = "";
   saved.style.opacity = "1";
-  setTimeout(() => saved.style.opacity = "0", 1200);
+
+  setTimeout(() => {
+    saved.style.opacity = "0";
+  }, 1200);
 
   renderHistory();
+  updateSummary();
 }
 
+// ----- History -----
 function renderHistory() {
   const entries = getEntries();
 
@@ -105,15 +121,23 @@ function renderHistory() {
 
   historyList.innerHTML = entries.map(entry => `
     <div class="history-card">
-      <div class="history-date">${new Date(entry.timestamp).toLocaleString()}</div>
+      <div class="history-date">
+        ${new Date(entry.timestamp).toLocaleString()}
+      </div>
+
       <h3>${entry.moodEmoji} ${entry.moodLabel}</h3>
+
       <p>😊 Mood: ${entry.mood}</p>
       <p>⚡ Energy: ${entry.energy}</p>
       <p>😰 Anxiety: ${entry.anxiety}</p>
       <p>🧠 OCD: ${entry.ocd}</p>
       <p>🎯 Focus: ${entry.focus}</p>
+
       ${entry.notes ? `<p>📝 ${entry.notes}</p>` : ""}
-      <button class="delete-btn" onclick="deleteEntry(${entry.id})">Delete</button>
+
+      <button class="delete-btn" onclick="deleteEntry(${entry.id})">
+        Delete
+      </button>
     </div>
   `).join("");
 }
@@ -122,8 +146,38 @@ function deleteEntry(id) {
   const entries = getEntries().filter(entry => entry.id !== id);
   saveEntries(entries);
   renderHistory();
+  updateSummary();
 }
 
+// ----- Summary -----
+function updateSummary() {
+  const entries = getEntries();
+
+  const entryCount = document.getElementById("entryCount");
+  const averageMood = document.getElementById("averageMood");
+  const latestEntry = document.getElementById("latestEntry");
+
+  if (!entryCount || !averageMood || !latestEntry) return;
+
+  entryCount.textContent =
+    `${entries.length} ${entries.length === 1 ? "entry" : "entries"}`;
+
+  if (entries.length === 0) {
+    averageMood.textContent = "Average mood: —";
+    latestEntry.textContent = "Last check-in: —";
+    return;
+  }
+
+  const average = Math.round(
+    entries.reduce((sum, entry) => sum + Number(entry.mood), 0) / entries.length
+  );
+
+  averageMood.textContent = `Average mood: ${average}`;
+  latestEntry.textContent =
+    `Last check-in: ${new Date(entries[0].timestamp).toLocaleString()}`;
+}
+
+// ----- Navigation -----
 function showLog() {
   logPage.classList.remove("hidden");
   historyPage.classList.add("hidden");
@@ -133,12 +187,15 @@ function showHistory() {
   logPage.classList.add("hidden");
   historyPage.classList.remove("hidden");
   renderHistory();
+  updateSummary();
 }
 
+// ----- Start App -----
 document.getElementById("logBtn").addEventListener("click", showLog);
 document.getElementById("historyBtn").addEventListener("click", showHistory);
 document.getElementById("saveBtn").addEventListener("click", saveEntry);
 
 buildSliders();
 renderHistory();
+updateSummary();
 showLog();
