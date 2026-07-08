@@ -88,4 +88,18 @@ button{
 
 .delete-btn{
   background:#7f1d1d;
+}.summary-card{
+  background:#1f2937;
+  border-radius:20px;
+  padding:18px;
+  margin:14px 0 22px;
+}
+
+.summary-card h2{
+  margin-top:0;
+}
+
+.summary-card p{
+  color:#cbd5e1;
+  margin:8px 0;
 }
