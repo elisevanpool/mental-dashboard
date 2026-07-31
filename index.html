@@ -9,88 +9,156 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <h1>🧠 Mental Dashboard</h1>
+    <h1>🧠 Mental Dashboard</h1>
 
-  <div class="tabs">
-    <button id="logBtn">Log</button>
-    <button id="historyBtn">History</button>
-  </div>
+    <section id="todayPage">
 
-  <section id="logPage">
+      <div class="tabs">
+        <button id="logBtn" type="button">Log</button>
+        <button id="historyBtn" type="button">History</button>
+      </div>
 
-    <section class="summary-card">
+      <section id="logPage">
 
-      <div class="summary-header">
-  <h2>Today</h2>
-</div>
+        <section class="summary-card">
 
-<div class="stats-grid">
-  <div>
-    <div class="stat-label">Entries</div>
-    <div id="entryCount">0</div>
-  </div>
+          <div class="summary-header">
+            <h2>Today</h2>
+          </div>
 
-  <div>
-    <div class="stat-label">Average</div>
-    <div id="averageMood">—</div>
-  </div>
+          <div class="stats-grid">
 
-  <div>
-    <div class="stat-label">Last check-in</div>
-    <div id="latestEntry">—</div>
-  </div>
-</div>
+            <div>
+              <div class="stat-label">Entries</div>
+              <div id="entryCount">0</div>
+            </div>
 
-<div class="chart-header">
-  <h3>Mood Trend</h3>
-  <span>Last 10 entries</span>
-</div>
+            <div>
+              <div class="stat-label">Average</div>
+              <div id="averageMood">—</div>
+            </div>
 
-<canvas id="moodChart" width="500" height="70"></canvas>
+            <div>
+              <div class="stat-label">Last check-in</div>
+              <div id="latestEntry">—</div>
+            </div>
+
+          </div>
+
+          <div class="chart-header">
+            <h3>Mood Trend</h3>
+            <span>Last 10 entries</span>
+          </div>
+
+          <canvas
+            id="moodChart"
+            width="500"
+            height="70"
+          ></canvas>
+
+        </section>
+
+        <div id="sliders"></div>
+
+        <textarea
+          id="notes"
+          placeholder="Anything happen today?"
+        ></textarea>
+
+        <button id="saveBtn" type="button">
+          Save Entry
+        </button>
+
+        <div id="saved">
+          Saved ✓
+        </div>
+
+      </section>
+
+      <section id="historyPage" class="hidden">
+
+        <h2>History</h2>
+
+        <div id="historyList">
+          No entries yet.
+        </div>
+
+      </section>
+
     </section>
 
-    <div id="sliders"></div>
+    <section id="masterlistPage" class="hidden">
+      <h2>✅ Masterlist</h2>
+      <p>Coming soon...</p>
+    </section>
 
-    <textarea
-      id="notes"
-      placeholder="Anything happen today?"
-    ></textarea>
+    <section id="journalPage" class="hidden">
+      <h2>📖 Journal</h2>
+      <p>Coming soon...</p>
+    </section>
 
-    <button id="saveBtn">
-      Save Entry
-    </button>
+    <section id="calendarPage" class="hidden">
+      <h2>📅 Calendar</h2>
+      <p>Coming soon...</p>
+    </section>
 
-    <div id="saved">
-      Saved ✓
-    </div>
+    <section id="morePage" class="hidden">
+      <h2>☰ More</h2>
+      <p>Coming soon...</p>
+    </section>
 
-  </section>
+    <section id="subpageContainer" class="hidden"></section>
 
-  <section id="historyPage" class="hidden">
+    <nav class="bottom-nav">
 
-    <h2>History</h2>
+      <button id="todayTab" type="button">
+        ☀️<br>Today
+      </button>
 
-    <div id="historyList">
-      No entries yet.
-    </div>
+      <button id="masterlistTab" type="button">
+        ✅<br>Masterlist
+      </button>
 
-  </section>
+      <button id="journalTab" type="button">
+        📖<br>Journal
+      </button>
 
-</div>
+      <button id="calendarTab" type="button">
+        📅<br>Calendar
+      </button>
 
-<script src="utils.js"></script>
-<script src="storage.js"></script>
-<script src="history.js"></script>
-<script src="dashboard.js"></script>
-<script src="ui.js"></script>
-<script src="app.js"></script>
+      <button id="moreTab" type="button">
+        ☰<br>More
+      </button>
+
+    </nav>
+
+  </div>
+
+  <script src="utils.js"></script>
+  <script src="storage.js"></script>
+  <script src="history.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="ui.js"></script>
+
+  <script src="today.js?v=2"></script>
+  <script src="masterlist.js?v=2"></script>
+  <script src="journal.js?v=1"></script>
+  <script src="calendar.js?v=2"></script>
+
+  <script src="tracker-logging.js?v=1"></script>
+  <script src="subpages.js?v=2"></script>
+  <script src="insights.js?v=1"></script>
+  <script src="more.js?v=4"></script>
+
+  <script src="app.js"></script>
 
 </body>
 </html>
