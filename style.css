@@ -8,75 +8,191 @@ body{
 .app{
   max-width:520px;
   margin:auto;
-  padding:24px;
+  padding:18px;
+  box-sizing:border-box;
 }
 
 h1{
   text-align:center;
+  font-size:28px;
+  margin:12px 0;
 }
+
+/* ----- Navigation tabs ----- */
 
 .tabs{
   display:flex;
   gap:10px;
-  margin:20px 0;
+  margin:12px 0;
 }
 
 .tabs button{
   flex:1;
+  margin:0;
+  padding:12px;
+  border:0;
+  border-radius:16px;
   background:#374151;
-}
-
-.card,.history-card{
-  background:#1f2937;
-  border-radius:20px;
-  padding:18px;
-  margin:14px 0;
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
-  font-size:22px;
+  color:white;
+  font-size:16px;
   font-weight:bold;
 }
 
-input[type=range]{
-  width:100%;
-  margin-top:14px;
+/* ----- General cards ----- */
+
+.card,
+.history-card,
+.summary-card{
+  background:#1f2937;
+  border-radius:16px;
 }
+
+.history-card{
+  padding:16px;
+  margin:10px 0;
+}
+
+/* ----- Summary ----- */
+
+.summary-card{
+  padding:12px;
+  margin:10px 0;
+}
+
+.summary-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:4px;
+}
+
+.summary-header h2{
+  margin:0;
+  font-size:20px;
+}
+
+.summary-card p{
+  color:#cbd5e1;
+  font-size:12px;
+  margin:3px 0;
+}
+
+.stats-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin:6px 0;
+}
+
+.stats-row p{
+  margin:0;
+}
+
+#latestEntry{
+  font-size:11px;
+  opacity:0.8;
+}
+
+/* ----- Mood chart ----- */
+
+.chart-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:9px 0 4px;
+}
+
+.chart-header h3{
+  margin:0;
+  font-size:14px;
+}
+
+.chart-header span{
+  font-size:10px;
+  opacity:0.7;
+}
+
+#moodChart{
+  display:block;
+  width:100%;
+  height:70px;
+  max-height:70px;
+  box-sizing:border-box;
+  border-radius:10px;
+  background:rgba(255,255,255,0.03);
+  padding:4px;
+}
+
+/* ----- Tracker sliders ----- */
+
+#sliders{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  margin:8px 0;
+}
+
+#sliders .card{
+  min-width:0;
+  min-height:72px;
+  margin:0;
+  padding:8px 10px;
+  box-sizing:border-box;
+  border-radius:13px;
+}
+
+#sliders .card:last-child{
+  grid-column:1 / -1;
+}
+
+#sliders .row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:2px;
+}
+
+#sliders input[type=range]{
+  width:100%;
+  margin:3px 0 0;
+}
+
+#sliders .small{
+  color:#94a3b8;
+  font-size:10px;
+  margin-top:0;
+  opacity:0.8;
+}
+
+/* ----- Notes and save button ----- */
 
 textarea{
   width:100%;
-  height:90px;
+  height:58px;
+  padding:10px;
+  box-sizing:border-box;
   border:0;
-  border-radius:18px;
-  padding:14px;
+  border-radius:14px;
   background:#0f172a;
   color:white;
-  font-size:16px;
-  box-sizing:border-box;
+  font-family:inherit;
+  font-size:13px;
+  resize:none;
 }
 
-button{
+#saveBtn{
   width:100%;
-  padding:16px;
-  margin-top:12px;
+  margin-top:8px;
+  padding:11px;
   border:0;
-  border-radius:18px;
+  border-radius:14px;
   background:#4f46e5;
   color:white;
-  font-size:18px;
+  font-size:15px;
   font-weight:bold;
-}
-
-.hidden{
-  display:none;
-}
-
-.small,.history-date{
-  color:#94a3b8;
-  font-size:14px;
-  margin-top:8px;
 }
 
 #saved{
@@ -84,22 +200,127 @@ button{
   opacity:0;
   transition:.3s;
   color:#a7f3d0;
+  font-size:12px;
+  margin-top:4px;
+}
+
+/* ----- History ----- */
+
+.history-date{
+  color:#94a3b8;
+  font-size:12px;
+  margin-top:4px;
 }
 
 .delete-btn{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:0;
+  border-radius:12px;
   background:#7f1d1d;
-}.summary-card{
-  background:#1f2937;
-  border-radius:20px;
-  padding:18px;
-  margin:14px 0 22px;
+  color:white;
+  font-weight:bold;
 }
 
-.summary-card h2{
-  margin-top:0;
+/* ----- Utility ----- */
+
+.hidden{
+  display:none;
 }
 
-.summary-card p{
-  color:#cbd5e1;
+/* ----- Phone layout ----- */
+
+@media (max-width:600px){
+  .app{
+    padding:12px;
+  }
+
+  h1{
+    font-size:24px;
+    margin:8px 0;
+  }
+
+  .tabs{
+    margin:8px 0;
+  }
+
+  .tabs button{
+    padding:10px;
+    font-size:15px;
+  }
+
+  .summary-card{
+    padding:10px;
+    margin:8px 0;
+  }
+
+  #sliders{
+    gap:6px;
+    margin:6px 0;
+  }
+
+  #sliders .card{
+    padding:7px 8px;
+    min-height:68px;
+  }
+
+  #sliders .row{
+    font-size:12px;
+  }
+
+  textarea{
+    height:52px;
+  }
+
+  #saveBtn{
+    padding:10px;
+  }
+}
+
+.tracker-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2px;
+}
+
+.tracker-title{
+  font-size:13px;
+  font-weight:600;
+}
+
+.tracker-value{
+  font-size:18px;
+  font-weight:700;
+}
+
+#sliders .small{
+  font-size:10px;
+  opacity:0.7;
+  margin-bottom:4px;
+}
+
+#sliders input[type=range]{
+  margin:0;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
   margin:8px 0;
+}
+
+.stat-label{
+  font-size:10px;
+  opacity:0.7;
+  margin-bottom:2px;
+}
+
+#entryCount,
+#averageMood,
+#latestEntry{
+  font-size:14px;
+  font-weight:600;
 }
