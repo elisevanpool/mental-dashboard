@@ -1,3 +1,7 @@
+// =====================
+// Today Page
+// =====================
+
 const mainPages = [
   "todayPage",
   "masterlistPage",
@@ -6,55 +10,185 @@ const mainPages = [
   "morePage"
 ];
 
-function showMainPage(pageId) {
-  mainPages.forEach(id => {
-    document.getElementById(id).classList.add("hidden");
-  });
+// ----- Masterlist data helpers -----
 
-  document.getElementById(pageId).classList.remove("hidden");
-
-  document.querySelectorAll(".bottom-nav button").forEach(button => {
-    button.classList.remove("active");
-  });
-
-  if (pageId === "todayPage") {
-    renderTodayPage();
+function getTodayMasterlistTasks() {
+  if (typeof getMasterlistTasks === "function") {
+    return getMasterlistTasks();
   }
 
-  if (pageId === "masterlistPage") {
-    renderMasterlistTasks();
+  try {
+    return JSON.parse(
+      localStorage.getItem("masterlistTasks") || "[]"
+    );
+  } catch (error) {
+    console.error("Could not load Masterlist tasks:", error);
+    return [];
   }
 }
 
-document.getElementById("todayTab").addEventListener("click", () => {
-  showMainPage("todayPage");
-  document.getElementById("todayTab").classList.add("active");
-});
+function saveTodayMasterlistTasks(tasks) {
+  if (typeof saveMasterlistTasks === "function") {
+    saveMasterlistTasks(tasks);
+    return;
+  }
 
-document.getElementById("masterlistTab").addEventListener("click", () => {
-  showMainPage("masterlistPage");
-  document.getElementById("masterlistTab").classList.add("active");
-});
+  localStorage.setItem(
+    "masterlistTasks",
+    JSON.stringify(tasks)
+  );
+}
 
-document.getElementById("journalTab").addEventListener("click", () => {
-  showMainPage("journalPage");
-  document.getElementById("journalTab").classList.add("active");
-});
+function getTodayDateString() {
+  if (typeof getTodayString === "function") {
+    return getTodayString();
+  }
 
-document.getElementById("calendarTab").addEventListener("click", () => {
-  showMainPage("calendarPage");
-  document.getElementById("calendarTab").classList.add("active");
-});
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
 
-document.getElementById("moreTab").addEventListener("click", () => {
-  showMainPage("morePage");
-  document.getElementById("moreTab").classList.add("active");
-});
+  return `${year}-${month}-${day}`;
+}
+
+function getTodayCategoryLabel(categoryId) {
+  if (typeof getCategoryLabel === "function") {
+    return getCategoryLabel(categoryId);
+  }
+
+  const fallbackCategories = {
+    body: "🚿 Body",
+    apartment: "🏠 Apartment",
+    administrative: "🖥️ Administrative",
+    phone: "📱 TBD on Phone",
+    errands: "🚗 Errands",
+    "under-two": "⚡ Under 2 Minutes",
+    misc: "📦 Misc"
+  };
+
+  return fallbackCategories[categoryId] || categoryId;
+}
+
+function formatTodayDueDate(dueDate) {
+  if (!dueDate) return "";
+
+  if (typeof formatDueDate === "function") {
+    return formatDueDate(dueDate);
+  }
+
+  if (dueDate === getTodayDateString()) {
+    return "Due today";
+  }
+
+  const date = new Date(`${dueDate}T12:00:00`);
+
+  return `Due ${date.toLocaleDateString()}`;
+}
+
+// ----- Main navigation -----
+
+function showMainPage(pageId) {
+  mainPages.forEach(id => {
+    document.getElementById(id)?.classList.add("hidden");
+  });
+
+  document.getElementById(pageId)?.classList.remove("hidden");
+
+  document
+    .querySelectorAll(".bottom-nav button")
+    .forEach(button => {
+      button.classList.remove("active");
+    });
+
+  if (pageId === "todayPage") {
+    renderTodayPage();
+
+    if (typeof updateSummary === "function") {
+      updateSummary();
+    }
+
+    if (typeof drawMoodChart === "function") {
+      drawMoodChart();
+    }
+  }
+
+  if (
+    pageId === "masterlistPage" &&
+    typeof renderMasterlistTasks === "function"
+  ) {
+    renderMasterlistTasks();
+  }
+
+  if (
+    pageId === "journalPage" &&
+    typeof renderJournalLandingPage === "function"
+  ) {
+    renderJournalLandingPage();
+  }
+
+  if (
+    pageId === "calendarPage" &&
+    typeof renderCalendar === "function"
+  ) {
+    renderCalendar();
+  }
+}
+
+// ----- Today history -----
+
+const TODAY_HISTORY_KEY = "todayHistory";
+
+function getTodayHistory() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(TODAY_HISTORY_KEY) || "[]"
+    );
+  } catch (error) {
+    console.error(
+      "Could not load Today history:",
+      error
+    );
+
+    return [];
+  }
+}
+
+function saveTodayHistory(history) {
+  localStorage.setItem(
+    TODAY_HISTORY_KEY,
+    JSON.stringify(history)
+  );
+}
+
+function addTodayHistoryEvent(
+  taskId,
+  action,
+  timestamp = new Date().toISOString()
+) {
+  const history = getTodayHistory();
+
+  history.push({
+    id: Date.now(),
+    taskId,
+    action,
+    timestamp
+  });
+
+  saveTodayHistory(history);
+}
+
+// ----- Today task IDs -----
 
 function getTodayTaskIds() {
-  return JSON.parse(
-    localStorage.getItem("todayTaskIds") || "[]"
-  );
+  try {
+    return JSON.parse(
+      localStorage.getItem("todayTaskIds") || "[]"
+    );
+  } catch (error) {
+    console.error("Could not load Today tasks:", error);
+    return [];
+  }
 }
 
 function saveTodayTaskIds(taskIds) {
@@ -64,6 +198,8 @@ function saveTodayTaskIds(taskIds) {
   );
 }
 
+// ----- Task actions -----
+
 function addTaskToToday(taskId) {
   const todayTaskIds = getTodayTaskIds();
 
@@ -71,8 +207,14 @@ function addTaskToToday(taskId) {
     todayTaskIds.push(taskId);
   }
 
-  saveTodayTaskIds(todayTaskIds);
-  renderTodayPage();
+saveTodayTaskIds(todayTaskIds);
+
+addTodayHistoryEvent(
+  taskId,
+  "added"
+);
+
+renderTodayPage();
 }
 
 function removeTaskFromToday(taskId) {
@@ -80,12 +222,18 @@ function removeTaskFromToday(taskId) {
     id => id !== taskId
   );
 
-  saveTodayTaskIds(updatedIds);
-  renderTodayPage();
+saveTodayTaskIds(updatedIds);
+
+addTodayHistoryEvent(
+  taskId,
+  "removed"
+);
+
+renderTodayPage();
 }
 
 function completeTodayTask(taskId) {
-  const tasks = getMasterlistTasks();
+  const tasks = getTodayMasterlistTasks();
 
   const updatedTasks = tasks.map(task => {
     if (task.id !== taskId) {
@@ -99,8 +247,7 @@ function completeTodayTask(taskId) {
     };
   });
 
-  saveMasterlistTasks(updatedTasks);
-
+  saveTodayMasterlistTasks(updatedTasks);
   removeTaskFromToday(taskId);
 
   if (typeof renderMasterlistTasks === "function") {
@@ -108,8 +255,152 @@ function completeTodayTask(taskId) {
   }
 }
 
+// ----- Quick-add task from Today -----
+
+function openTodayQuickAdd() {
+  const existingForm =
+    document.getElementById("todayQuickAddForm");
+
+  if (existingForm) {
+    existingForm.remove();
+    return;
+  }
+
+  const todaySection =
+    document.getElementById("todayTasksSection");
+
+  const form = document.createElement("div");
+
+  form.id = "todayQuickAddForm";
+  form.className = "today-quick-add";
+
+  form.innerHTML = `
+    <input
+      id="todayQuickTaskInput"
+      type="text"
+      placeholder="What needs to be done today?"
+    >
+
+    <select id="todayQuickTaskCategory">
+      <option value="body">🚿 Body</option>
+      <option value="apartment">🏠 Apartment</option>
+      <option value="administrative">
+        🖥️ Administrative
+      </option>
+      <option value="phone">📱 TBD on Phone</option>
+      <option value="errands">🚗 Errands</option>
+      <option value="under-two">
+        ⚡ Under 2 Minutes
+      </option>
+      <option value="misc" selected>📦 Misc</option>
+    </select>
+
+    <div class="today-quick-add-actions">
+      <button
+        id="cancelTodayQuickAddBtn"
+        type="button"
+      >
+        Cancel
+      </button>
+
+      <button
+        id="saveTodayQuickAddBtn"
+        type="button"
+      >
+        Add to Today
+      </button>
+    </div>
+
+    <p
+      id="todayQuickAddMessage"
+      class="task-form-message"
+    ></p>
+  `;
+
+  todaySection
+    .querySelector(".today-section-header")
+    .after(form);
+
+  const input =
+    document.getElementById("todayQuickTaskInput");
+
+  input.focus();
+
+  document
+    .getElementById("cancelTodayQuickAddBtn")
+    .addEventListener("click", () => {
+      form.remove();
+    });
+
+  document
+    .getElementById("saveTodayQuickAddBtn")
+    .addEventListener("click", saveTodayQuickTask);
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      saveTodayQuickTask();
+    }
+  });
+}
+
+function saveTodayQuickTask() {
+  const input =
+    document.getElementById("todayQuickTaskInput");
+
+  const categorySelect =
+    document.getElementById("todayQuickTaskCategory");
+
+  const message =
+    document.getElementById("todayQuickAddMessage");
+
+  const taskText = input?.value.trim();
+
+  if (!taskText) {
+    if (message) {
+      message.textContent = "Please enter a task.";
+    }
+
+    return;
+  }
+
+  const taskId = Date.now();
+  const tasks = getTodayMasterlistTasks();
+
+  tasks.push({
+    id: taskId,
+    text: taskText,
+    completed: false,
+    archived: false,
+    categories: [
+      categorySelect?.value || "misc"
+    ],
+    dueDate: getTodayDateString(),
+    createdAt: new Date().toISOString(),
+    completedAt: null
+  });
+
+  saveTodayMasterlistTasks(tasks);
+
+  const todayTaskIds = getTodayTaskIds();
+  todayTaskIds.push(taskId);
+saveTodayTaskIds(todayTaskIds);
+
+addTodayHistoryEvent(
+  taskId,
+  "created-for-today"
+);
+
+renderTodayPage();
+
+  if (typeof renderMasterlistTasks === "function") {
+    renderMasterlistTasks();
+  }
+}
+
+// ----- Suggestions -----
+
 function getSuggestedTasks(tasks, todayTaskIds) {
-  const today = getTodayString();
+  const today = getTodayDateString();
 
   const availableTasks = tasks.filter(task => {
     return (
@@ -153,7 +444,15 @@ function groupTasksByCategory(tasks) {
   return groups;
 }
 
+// ----- Task cards -----
+
 function renderTodayTaskCard(task) {
+  const categories =
+    Array.isArray(task.categories) &&
+    task.categories.length > 0
+      ? task.categories
+      : ["misc"];
+
   return `
     <div class="today-task-card">
 
@@ -172,10 +471,10 @@ function renderTodayTaskCard(task) {
           </div>
 
           <div class="task-category-list">
-            ${task.categories
+            ${categories
               .map(category => `
                 <span class="task-category">
-                  ${getCategoryLabel(category)}
+                  ${getTodayCategoryLabel(category)}
                 </span>
               `)
               .join("")}
@@ -185,7 +484,7 @@ function renderTodayTaskCard(task) {
             task.dueDate
               ? `
                 <div class="task-deadline">
-                  ⏰ ${formatDueDate(task.dueDate)}
+                  ⏰ ${formatTodayDueDate(task.dueDate)}
                 </div>
               `
               : ""
@@ -207,12 +506,15 @@ function renderTodayTaskCard(task) {
   `;
 }
 
+// ----- Render Today -----
+
 function renderTodayPage() {
   const logPage = document.getElementById("logPage");
 
-  let todaySection = document.getElementById(
-    "todayTasksSection"
-  );
+  if (!logPage) return;
+
+  let todaySection =
+    document.getElementById("todayTasksSection");
 
   if (!todaySection) {
     todaySection = document.createElement("section");
@@ -222,7 +524,7 @@ function renderTodayPage() {
     logPage.prepend(todaySection);
   }
 
-  const tasks = getMasterlistTasks().filter(
+  const tasks = getTodayMasterlistTasks().filter(
     task => !task.archived
   );
 
@@ -235,9 +537,8 @@ function renderTodayPage() {
     );
   });
 
-  const validTodayTaskIds = selectedTasks.map(
-    task => task.id
-  );
+  const validTodayTaskIds =
+    selectedTasks.map(task => task.id);
 
   if (
     validTodayTaskIds.length !== todayTaskIds.length
@@ -265,7 +566,7 @@ function renderTodayPage() {
             <div class="today-category-group">
 
               <h3>
-                ${getCategoryLabel(categoryId)}
+                ${getTodayCategoryLabel(categoryId)}
               </h3>
 
               ${categoryTasks
@@ -284,50 +585,74 @@ function renderTodayPage() {
         </p>
       `
       : suggestedTasks
-          .map(task => `
-            <div class="suggested-task">
+          .map(task => {
+            const categories =
+              task.categories?.length
+                ? task.categories
+                : ["misc"];
 
-              <div>
-                <div class="suggested-task-text">
-                  ${task.text}
+            return `
+              <div class="suggested-task">
+
+                <div>
+                  <div class="suggested-task-text">
+                    ${task.text}
+                  </div>
+
+                  ${
+                    task.dueDate
+                      ? `
+                        <div class="task-deadline">
+                          ⏰ ${formatTodayDueDate(
+                            task.dueDate
+                          )}
+                        </div>
+                      `
+                      : `
+                        <div class="suggested-task-category">
+                          ${categories
+                            .map(getTodayCategoryLabel)
+                            .join(" • ")}
+                        </div>
+                      `
+                  }
                 </div>
 
-                ${
-                  task.dueDate
-                    ? `
-                      <div class="task-deadline">
-                        ⏰ ${formatDueDate(task.dueDate)}
-                      </div>
-                    `
-                    : `
-                      <div class="suggested-task-category">
-                        ${task.categories
-                          .map(getCategoryLabel)
-                          .join(" • ")}
-                      </div>
-                    `
-                }
+                <button
+                  class="add-to-today-btn"
+                  data-task-id="${task.id}"
+                  type="button"
+                >
+                  Add
+                </button>
+
               </div>
-
-              <button
-                class="add-to-today-btn"
-                data-task-id="${task.id}"
-                type="button"
-              >
-                Add
-              </button>
-
-            </div>
-          `)
+            `;
+          })
           .join("");
 
   todaySection.innerHTML = `
     <div class="today-section-header">
+
       <h2>☀️ Today's Tasks</h2>
 
-      <span>
-        ${selectedTasks.length}
-      </span>
+      <div class="today-header-actions">
+
+        <span class="today-task-count">
+          ${selectedTasks.length}
+        </span>
+
+        <button
+          id="openTodayQuickAddBtn"
+          class="today-add-btn"
+          type="button"
+          aria-label="Add a task for today"
+        >
+          ＋
+        </button>
+
+      </div>
+
     </div>
 
     <div id="selectedTodayTasks">
@@ -347,6 +672,10 @@ function renderTodayPage() {
 
     </div>
   `;
+
+  document
+    .getElementById("openTodayQuickAddBtn")
+    ?.addEventListener("click", openTodayQuickAdd);
 
   document
     .querySelectorAll(".add-to-today-btn")
@@ -385,7 +714,62 @@ function renderTodayPage() {
     });
 }
 
-showMainPage("todayPage");
+// ----- Navigation events -----
+
 document
   .getElementById("todayTab")
-  .classList.add("active");
+  ?.addEventListener("click", () => {
+    showMainPage("todayPage");
+
+    document
+      .getElementById("todayTab")
+      ?.classList.add("active");
+  });
+
+document
+  .getElementById("masterlistTab")
+  ?.addEventListener("click", () => {
+    showMainPage("masterlistPage");
+
+    document
+      .getElementById("masterlistTab")
+      ?.classList.add("active");
+  });
+
+document
+  .getElementById("journalTab")
+  ?.addEventListener("click", () => {
+    showMainPage("journalPage");
+
+    document
+      .getElementById("journalTab")
+      ?.classList.add("active");
+  });
+
+document
+  .getElementById("calendarTab")
+  ?.addEventListener("click", () => {
+    showMainPage("calendarPage");
+
+    document
+      .getElementById("calendarTab")
+      ?.classList.add("active");
+  });
+
+document
+  .getElementById("moreTab")
+  ?.addEventListener("click", () => {
+    showMainPage("morePage");
+
+    document
+      .getElementById("moreTab")
+      ?.classList.add("active");
+  });
+
+// ----- Start -----
+
+showMainPage("todayPage");
+
+document
+  .getElementById("todayTab")
+  ?.classList.add("active");

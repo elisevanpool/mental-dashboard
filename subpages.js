@@ -669,6 +669,21 @@ if (tracker.type === "scale") {
   return;
 }
 
+if (tracker.id === "sleep") {
+  renderSleepTrackerScreen(tracker);
+  return;
+}
+
+if (tracker.type === "number") {
+  renderNumberTrackerScreen(tracker);
+  return;
+}
+
+if (tracker.type === "note") {
+  renderNoteTrackerScreen(tracker);
+  return;
+}
+
   openSubpage(`
     <section class="subpage">
 
