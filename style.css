@@ -4236,6 +4236,57 @@ body {
   padding-top: 12px;
 }
 
+.checklist-completion-status {
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--theme-accent);
+  color: var(--theme-button-text);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s ease, max-height 0.2s ease,
+    margin 0.2s ease, padding 0.2s ease;
+}
+
+.checklist-completion-status.visible {
+  max-height: 60px;
+  margin-bottom: 10px;
+  padding: 9px 11px;
+  opacity: 1;
+}
+
+.calendar-checklist-event {
+  border-left: 3px solid var(--theme-accent);
+}
+
+.calendar-checklist-label {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--theme-accent);
+  color: var(--theme-button-text);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.calendar-checklist-items {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0 0;
+  padding: 0;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  list-style: none;
+}
+
+.calendar-checklist-items li.completed {
+  color: var(--theme-text);
+}
+
 .checklist-preset-picker p {
   margin: 0 0 9px;
   color: var(--theme-text-muted);

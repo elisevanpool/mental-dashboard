@@ -1049,6 +1049,11 @@ const CHECKLIST_PRESETS_KEY =
 const DAILY_CHECKLISTS_KEY =
   "mybrainDailyChecklists";
 
+const COMPLETED_CHECKLISTS_KEY =
+  "mybrainCompletedChecklists";
+
+let checklistCompletionMessageTimer = null;
+
 const defaultChecklistPresets = [
   {
     id: "leaving-the-house",
@@ -1144,6 +1149,56 @@ function saveAllDailyChecklists(checklists) {
   );
 }
 
+function getCompletedChecklistRecords() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(
+        COMPLETED_CHECKLISTS_KEY
+      ) || "[]"
+    );
+
+    return Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    console.error(
+      "Could not load completed checklists:",
+      error
+    );
+
+    return [];
+  }
+}
+
+function archiveCompletedChecklist(checklist) {
+  const records = getCompletedChecklistRecords();
+
+  if (records.some(record => (
+    record?.checklistInstanceId === checklist.id
+  ))) {
+    return false;
+  }
+
+  records.push({
+    checklistInstanceId: checklist.id,
+    presetId: checklist.presetId,
+    name: checklist.name,
+    emoji: checklist.emoji,
+    completedAt: new Date().toISOString(),
+    date: getTodayDateString(),
+    items: checklist.items.map(item => ({
+      id: item.id,
+      name: item.text,
+      completed: item.completed === true
+    }))
+  });
+
+  localStorage.setItem(
+    COMPLETED_CHECKLISTS_KEY,
+    JSON.stringify(records)
+  );
+
+  return true;
+}
+
 function getTodayChecklists() {
   const checklists = getAllDailyChecklists();
   const todayChecklists =
@@ -1232,8 +1287,47 @@ function setChecklistItemComplete(
   if (!checklistItem) return;
 
   checklistItem.completed = completed;
+
+  const validItems = checklist.items.filter(
+    item => item && typeof item.id === "string"
+  );
+  const isComplete = validItems.length > 0 &&
+    validItems.every(item => item.completed === true);
+
+  if (isComplete) {
+    const archived = archiveCompletedChecklist(checklist);
+
+    saveTodayChecklists(
+      todayChecklists.filter(item => item.id !== instanceId)
+    );
+    renderTodayChecklists();
+
+    if (archived) {
+      showChecklistCompletionMessage(checklist.name);
+    }
+
+    return;
+  }
+
   saveTodayChecklists(todayChecklists);
   renderTodayChecklists();
+}
+
+function showChecklistCompletionMessage(checklistName) {
+  const status = document.getElementById(
+    "checklistCompletionStatus"
+  );
+
+  if (!status) return;
+
+  window.clearTimeout(checklistCompletionMessageTimer);
+  status.textContent =
+    `${checklistName} completed and saved to Calendar.`;
+  status.classList.add("visible");
+
+  checklistCompletionMessageTimer = window.setTimeout(() => {
+    status.classList.remove("visible");
+  }, 4000);
 }
 
 function renderChecklistCard(checklist) {
@@ -1317,6 +1411,12 @@ function renderTodayChecklists() {
   });
 
   mount.innerHTML = `
+    <div
+      id="checklistCompletionStatus"
+      class="checklist-completion-status"
+      role="status"
+      aria-live="polite"
+    ></div>
     <div class="checklist-preset-picker">
       <p>Add a reusable preset:</p>
       <div class="checklist-preset-buttons">
