@@ -4229,3 +4229,137 @@ body {
 #saveRoutineItemBtn {
   background: var(--theme-accent);
 }
+
+/* ----- Reusable checklist presets ----- */
+
+#todayChecklistsContent {
+  padding-top: 12px;
+}
+
+.checklist-preset-picker p {
+  margin: 0 0 9px;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+}
+
+.checklist-preset-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.add-checklist-preset-btn {
+  min-width: 0;
+  padding: 10px 7px;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-checklist-preset-btn span {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 18px;
+}
+
+.active-today-checklists {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.today-checklist-card {
+  padding: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-input);
+}
+
+.today-checklist-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.today-checklist-heading h4,
+.today-checklist-heading p {
+  margin: 0;
+}
+
+.today-checklist-heading h4 {
+  font-size: 14px;
+}
+
+.today-checklist-heading p {
+  margin-top: 3px;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+}
+
+.remove-checklist-btn {
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: var(--theme-muted);
+  color: var(--theme-text);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.checklist-progress-track {
+  height: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--theme-muted);
+}
+
+.checklist-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--theme-accent);
+  transition: width 0.2s ease;
+}
+
+.today-checklist-items {
+  display: grid;
+  gap: 4px;
+}
+
+.today-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.today-checklist-item input {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+.today-checklist-item.completed span {
+  opacity: 0.58;
+  text-decoration: line-through;
+}
+
+@media (max-width: 380px) {
+  .checklist-preset-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .add-checklist-preset-btn span {
+    display: inline;
+    margin: 0 4px 0 0;
+    font-size: 14px;
+  }
+}

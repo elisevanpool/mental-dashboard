@@ -1041,6 +1041,315 @@ function removeRoutineItem(
   refreshTodayRoutineSections();
 }
 
+// ----- Reusable checklist presets -----
+
+const CHECKLIST_PRESETS_KEY =
+  "mybrainChecklistPresets";
+
+const DAILY_CHECKLISTS_KEY =
+  "mybrainDailyChecklists";
+
+const defaultChecklistPresets = [
+  {
+    id: "leaving-the-house",
+    name: "Leaving the House",
+    emoji: "🚪",
+    items: [
+      "Keys",
+      "Phone",
+      "Wallet",
+      "Water bottle",
+      "Lock the door"
+    ]
+  },
+  {
+    id: "laundry-day",
+    name: "Laundry Day",
+    emoji: "🧺",
+    items: [
+      "Gather laundry",
+      "Start washer",
+      "Move clothes to dryer",
+      "Fold clothes",
+      "Put clothes away"
+    ]
+  },
+  {
+    id: "work-morning",
+    name: "Work Morning",
+    emoji: "💼",
+    items: [
+      "Check calendar",
+      "Pack work bag",
+      "Prepare lunch",
+      "Fill water bottle",
+      "Leave on time"
+    ]
+  }
+];
+
+function getChecklistPresets() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(
+        CHECKLIST_PRESETS_KEY
+      ) || "null"
+    );
+
+    return Array.isArray(saved)
+      ? saved
+      : defaultChecklistPresets;
+  } catch (error) {
+    console.error(
+      "Could not load checklist presets:",
+      error
+    );
+
+    return defaultChecklistPresets;
+  }
+}
+
+function getAllDailyChecklists() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(
+        DAILY_CHECKLISTS_KEY
+      ) || "{}"
+    );
+
+    return saved && typeof saved === "object"
+      ? saved
+      : {};
+  } catch (error) {
+    console.error(
+      "Could not load daily checklists:",
+      error
+    );
+
+    return {};
+  }
+}
+
+function saveAllDailyChecklists(checklists) {
+  localStorage.setItem(
+    DAILY_CHECKLISTS_KEY,
+    JSON.stringify(checklists)
+  );
+}
+
+function getTodayChecklists() {
+  const checklists = getAllDailyChecklists();
+  const todayChecklists =
+    checklists[getTodayDateString()];
+
+  return Array.isArray(todayChecklists)
+    ? todayChecklists
+    : [];
+}
+
+function saveTodayChecklists(todayChecklists) {
+  const checklists = getAllDailyChecklists();
+  const today = getTodayDateString();
+
+  if (todayChecklists.length > 0) {
+    checklists[today] = todayChecklists;
+  } else {
+    delete checklists[today];
+  }
+
+  saveAllDailyChecklists(checklists);
+}
+
+function createChecklistInstanceId() {
+  return `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 9)}`;
+}
+
+function addPresetToToday(presetId) {
+  const preset = getChecklistPresets().find(
+    item => item.id === presetId
+  );
+
+  if (!preset) return;
+
+  const instanceId = createChecklistInstanceId();
+  const todayChecklists = getTodayChecklists();
+
+  todayChecklists.push({
+    id: instanceId,
+    presetId: preset.id,
+    name: preset.name,
+    emoji: preset.emoji,
+    items: preset.items.map((text, index) => ({
+      id: `${instanceId}-${index}`,
+      text,
+      completed: false
+    }))
+  });
+
+  saveTodayChecklists(todayChecklists);
+  renderTodayChecklists();
+}
+
+function removeChecklistFromToday(instanceId) {
+  saveTodayChecklists(
+    getTodayChecklists().filter(
+      checklist => checklist.id !== instanceId
+    )
+  );
+
+  renderTodayChecklists();
+}
+
+function setChecklistItemComplete(
+  instanceId,
+  itemId,
+  completed
+) {
+  const todayChecklists = getTodayChecklists();
+  const checklist = todayChecklists.find(
+    item => item.id === instanceId
+  );
+  const checklistItem = checklist?.items.find(
+    item => item.id === itemId
+  );
+
+  if (!checklistItem) return;
+
+  checklistItem.completed = completed;
+  saveTodayChecklists(todayChecklists);
+  renderTodayChecklists();
+}
+
+function renderChecklistCard(checklist) {
+  const completedCount = checklist.items.filter(
+    item => item.completed
+  ).length;
+  const totalCount = checklist.items.length;
+  const progress = totalCount
+    ? Math.round((completedCount / totalCount) * 100)
+    : 0;
+
+  return `
+    <article class="today-checklist-card">
+      <div class="today-checklist-heading">
+        <div>
+          <h4>
+            ${escapeTodayHtml(checklist.emoji)}
+            ${escapeTodayHtml(checklist.name)}
+          </h4>
+          <p>${completedCount} of ${totalCount} complete</p>
+        </div>
+        <button
+          class="remove-checklist-btn"
+          data-checklist-id="${escapeTodayHtml(checklist.id)}"
+          type="button"
+          aria-label="Remove ${escapeTodayHtml(checklist.name)} from today"
+        >
+          Remove
+        </button>
+      </div>
+      <div
+        class="checklist-progress-track"
+        role="progressbar"
+        aria-label="${escapeTodayHtml(checklist.name)} progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="${progress}"
+      >
+        <span style="width: ${progress}%"></span>
+      </div>
+      <div class="today-checklist-items">
+        ${checklist.items.map(item => `
+          <label class="today-checklist-item ${
+            item.completed ? "completed" : ""
+          }">
+            <input
+              class="today-checklist-checkbox"
+              type="checkbox"
+              data-checklist-id="${escapeTodayHtml(checklist.id)}"
+              data-item-id="${escapeTodayHtml(item.id)}"
+              ${item.completed ? "checked" : ""}
+            >
+            <span>${escapeTodayHtml(item.text)}</span>
+          </label>
+        `).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderTodayChecklists() {
+  const mount = document.getElementById(
+    "todayChecklistsContent"
+  );
+
+  if (!mount) return;
+
+  const presets = getChecklistPresets();
+  const todayChecklists = getTodayChecklists();
+
+  mount.innerHTML = `
+    <div class="checklist-preset-picker">
+      <p>Add a reusable preset:</p>
+      <div class="checklist-preset-buttons">
+        ${presets.map(preset => `
+          <button
+            class="add-checklist-preset-btn"
+            data-preset-id="${escapeTodayHtml(preset.id)}"
+            type="button"
+          >
+            <span>${escapeTodayHtml(preset.emoji)}</span>
+            ${escapeTodayHtml(preset.name)}
+          </button>
+        `).join("")}
+      </div>
+    </div>
+    <div class="active-today-checklists">
+      ${todayChecklists.length
+        ? todayChecklists.map(renderChecklistCard).join("")
+        : `<p class="empty-state">
+            No checklists added for today.
+          </p>`}
+    </div>
+  `;
+
+  mount.querySelectorAll(
+    ".add-checklist-preset-btn"
+  ).forEach(button => {
+    button.addEventListener("click", event => {
+      addPresetToToday(
+        event.currentTarget.dataset.presetId
+      );
+    });
+  });
+
+  mount.querySelectorAll(
+    ".remove-checklist-btn"
+  ).forEach(button => {
+    button.addEventListener("click", event => {
+      removeChecklistFromToday(
+        event.currentTarget.dataset.checklistId
+      );
+    });
+  });
+
+  mount.querySelectorAll(
+    ".today-checklist-checkbox"
+  ).forEach(checkbox => {
+    checkbox.addEventListener("change", event => {
+      const current = event.currentTarget;
+
+      setChecklistItemComplete(
+        current.dataset.checklistId,
+        current.dataset.itemId,
+        current.checked
+      );
+    });
+  });
+}
+
 // ----- New Today layout -----
 
 function formatTodayHeadingDate(
@@ -1187,6 +1496,20 @@ function ensureTodayDashboardLayout() {
 
         </div>
 
+      </details>
+
+      <details
+        id="todayChecklistsSection"
+        class="today-collapsible-section"
+        open
+      >
+        <summary>
+          <span>📋 checklist presets</span>
+          <span class="today-collapse-arrow">›</span>
+        </summary>
+        <div class="today-collapsible-content">
+          <div id="todayChecklistsContent"></div>
+        </div>
       </details>
 
       <section class="today-trackers-section">
@@ -1349,6 +1672,8 @@ function renderTodayPage() {
   if (!todaySection) {
     return;
   }
+
+  renderTodayChecklists();
 
   const tasks =
     getTodayMasterlistTasks().filter(
