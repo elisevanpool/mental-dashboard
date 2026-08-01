@@ -10,7 +10,7 @@
 
   <meta
     name="theme-color"
-    content="#111827"
+    content="#24104f"
   >
 
   <title>mybrain</title>
@@ -27,7 +27,7 @@
 
   <link
     rel="stylesheet"
-    href="style.css?v=39"
+    href="style.css?v=40"
   >
 </head>
 
@@ -35,41 +35,26 @@
 
   <div class="app">
 
-    <h1>🧠 mybrain</h1>
+    <header class="brand" aria-label="mybrain">
+      <span class="brand-mascot" aria-hidden="true">🧠</span>
+      <span>mybrain</span>
+    </header>
 
     <section id="todayPage">
-
-      <div class="tabs">
-
-        <button
-          id="logBtn"
-          type="button"
-        >
-          Log
-        </button>
-
-        <button
-          id="historyBtn"
-          type="button"
-        >
-          History
-        </button>
-
-      </div>
 
       <section id="logPage">
 
         <section class="summary-card">
 
           <div class="summary-header">
-            <h2>Today</h2>
+            <h2>today</h2>
           </div>
 
           <div class="stats-grid">
 
             <div>
               <div class="stat-label">
-                Entries
+                entries
               </div>
 
               <div id="entryCount">
@@ -79,7 +64,7 @@
 
             <div>
               <div class="stat-label">
-                Average
+                average
               </div>
 
               <div id="averageMood">
@@ -89,7 +74,7 @@
 
             <div>
               <div class="stat-label">
-                Last check-in
+                last check-in
               </div>
 
               <div id="latestEntry">
@@ -101,10 +86,10 @@
 
           <div class="chart-header">
 
-            <h3>Mood Trend</h3>
+            <h3>mood trend</h3>
 
             <span>
-              Last 10 entries
+              last 10 entries
             </span>
 
           </div>
@@ -121,33 +106,24 @@
 
         <textarea
           id="notes"
-          placeholder="Anything happen today?"
+          placeholder="anything happen today?"
         ></textarea>
 
         <button
           id="saveBtn"
           type="button"
         >
-          Save Entry
+          save entry
         </button>
 
         <div id="saved">
-          Saved ✓
+          saved ✓
         </div>
 
       </section>
 
-      <section
-        id="historyPage"
-        class="hidden"
-      >
-
-        <h2>History</h2>
-
-        <div id="historyList">
-          No entries yet.
-        </div>
-
+      <section id="historyPage" class="hidden" aria-hidden="true">
+        <div id="historyList">no entries yet.</div>
       </section>
 
     </section>
@@ -156,32 +132,24 @@
       id="masterlistPage"
       class="hidden"
     >
-      <h2>✅ Masterlist</h2>
-      <p>Coming soon...</p>
+      <h2>◇ masterlist</h2>
+      <p>coming soon...</p>
     </section>
 
     <section
       id="journalPage"
       class="hidden"
     >
-      <h2>📖 Journal</h2>
-      <p>Coming soon...</p>
+      <h2>▤ journal</h2>
+      <p>coming soon...</p>
     </section>
 
     <section
       id="calendarPage"
       class="hidden"
     >
-      <h2>📅 Calendar</h2>
-      <p>Coming soon...</p>
-    </section>
-
-    <section
-      id="morePage"
-      class="hidden"
-    >
-      <h2>☰ More</h2>
-      <p>Coming soon...</p>
+      <h2>▦ calendar</h2>
+      <p>coming soon...</p>
     </section>
 
     <section
@@ -189,82 +157,67 @@
       class="hidden"
     ></section>
 
-    <nav class="bottom-nav">
-
-      <button
-        id="todayTab"
-        type="button"
-      >
-        ☀️<br>Today
-      </button>
-
-      <button
-        id="masterlistTab"
-        type="button"
-      >
-        ✅<br>Masterlist
-      </button>
-
-      <button
-        id="journalTab"
-        type="button"
-      >
-        📖<br>Journal
-      </button>
-
-      <button
-        id="calendarTab"
-        type="button"
-      >
-        📅<br>Calendar
-      </button>
-
-      <button
-        id="moreTab"
-        type="button"
-      >
-        ☰<br>More
-      </button>
-
+    <nav class="bottom-nav" aria-label="primary navigation">
+      <button id="todayTab" type="button" aria-label="today" title="today"><span aria-hidden="true">🧠</span></button>
+      <button id="calendarTab" type="button" aria-label="calendar" title="calendar"><span aria-hidden="true">▦</span></button>
+      <button id="masterlistTab" type="button" aria-label="masterlist" title="masterlist"><span class="nav-rhombus" aria-hidden="true"></span></button>
+      <button id="journalTab" type="button" aria-label="journal" title="journal"><span aria-hidden="true">▤</span></button>
+      <button id="createTab" class="rhombus-control" type="button" aria-label="open create menu" title="create" aria-expanded="false" aria-controls="createMenu"><span aria-hidden="true">＋</span></button>
     </nav>
+
+    <div id="createMenu" class="create-menu-backdrop hidden" role="presentation">
+      <section class="create-menu" role="dialog" aria-modal="true" aria-labelledby="createMenuTitle">
+        <div class="create-sky" aria-hidden="true"><i></i><i></i><i></i></div>
+        <header><div><p>brainspace</p><h2 id="createMenuTitle">create something</h2></div><button id="closeCreateMenu" type="button" aria-label="close create menu" title="close">＋</button></header>
+        <div class="create-menu-grid">
+          <button type="button" data-create-action="task">◇ <span>add task</span></button>
+          <button type="button" data-create-action="checklist">◇ <span>add checklist</span></button>
+          <button type="button" data-create-action="journal">◇ <span>new journal item</span></button>
+          <button type="button" data-create-action="checkin">◇ <span>log check-in</span></button>
+          <button type="button" data-create-action="insights">◇ <span>insights</span></button>
+          <button type="button" data-create-action="settings">◇ <span>settings</span></button>
+          <button type="button" data-create-action="themes">◇ <span>themes</span></button>
+        </div>
+      </section>
+    </div>
 
   </div>
 
   <!-- Core app files -->
 
-  <script src="utils.js"></script>
-  <script src="storage.js"></script>
-  <script src="history.js"></script>
-  <script src="dashboard.js"></script>
-  <script src="ui.js"></script>
+  <script src="utils.js?v=40"></script>
+  <script src="storage.js?v=40"></script>
+  <script src="history.js?v=40"></script>
+  <script src="dashboard.js?v=40"></script>
+  <script src="ui.js?v=40"></script>
 
   <!-- Main pages -->
 
-  <script src="masterlist.js?v=5"></script>
-  <script src="today.js?v=15"></script>
-  <script src="journal.js?v=5"></script>
-  <script src="calendar.js?v=6"></script>
+  <script src="masterlist.js?v=40"></script>
+  <script src="today.js?v=40"></script>
+  <script src="journal.js?v=40"></script>
+  <script src="calendar.js?v=40"></script>
 
   <!-- Tracker systems -->
 
-  <script src="tracker-logging.js?v=5"></script>
-  <script src="sleep-tracking.js?v=1"></script>
-  <script src="number-tracking.js?v=1"></script>
-  <script src="note-tracking.js?v=1"></script>
-  <script src="subpages.js?v=7"></script>
+  <script src="tracker-logging.js?v=40"></script>
+  <script src="sleep-tracking.js?v=40"></script>
+  <script src="number-tracking.js?v=40"></script>
+  <script src="note-tracking.js?v=40"></script>
+  <script src="subpages.js?v=40"></script>
 
   <!-- More-page features -->
 
-  <script src="insights.js?v=5"></script>
-  <script src="achievements.js?v=1"></script>
-  <script src="themes.js?v=1"></script>
-  <script src="customization.js?v=3"></script>
-  <script src="settings.js?v=3"></script>
-  <script src="more.js?v=11"></script>
+  <script src="insights.js?v=40"></script>
+  <script src="achievements.js?v=40"></script>
+  <script src="themes.js?v=40"></script>
+  <script src="customization.js?v=40"></script>
+  <script src="settings.js?v=40"></script>
+  <script src="more.js?v=40"></script>
 
   <!-- Navigation startup -->
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=40"></script>
 
 </body>
 </html>

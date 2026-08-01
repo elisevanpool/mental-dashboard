@@ -30,14 +30,14 @@ function buildSliders() {
       <div class="card">
         <div class="tracker-header">
           <span class="tracker-title">
-            ${tracker.emoji} ${tracker.name}
+            ${tracker.emoji} ${tracker.name.toLowerCase()}
           </span>
 
           <span
             class="tracker-value"
             id="${tracker.id}Value"
           >
-            50
+            5
           </span>
         </div>
 
@@ -45,15 +45,16 @@ function buildSliders() {
           class="small"
           id="${tracker.id}Label"
         >
-          50/100
+          5 / 10
         </div>
 
         <input
           id="${tracker.id}"
           type="range"
-          min="0"
-          max="100"
-          value="50"
+          min="1"
+          max="10"
+          value="5"
+          aria-label="${tracker.name.toLowerCase()} from 1 to 10"
         >
       </div>
     `;
@@ -79,15 +80,18 @@ function updateSlider(id) {
 
   if (!input || !valueElement || !labelElement) return;
 
-  const value = Number(input.value);
+  const displayValue = Number(input.value);
+  // UI is 1–10; persisted tracker records stay 0–100 for full backward
+  // compatibility with calendar, history, charts, and insights.
+  const storedValue = displayValue * 10;
 
-  valueElement.textContent = value;
+  valueElement.textContent = displayValue;
 
   if (id === "mood") {
-    const [label, emoji] = moodLabel(value);
+    const [label, emoji] = moodLabel(storedValue);
     labelElement.textContent = `${emoji} ${label}`;
   } else {
-    labelElement.textContent = `${value}/100`;
+    labelElement.textContent = `${displayValue} / 10`;
   }
 }
 
@@ -97,7 +101,7 @@ function saveEntry() {
 
   if (!moodInput) return;
 
-  const mood = Number(moodInput.value);
+  const mood = Number(moodInput.value) * 10;
   const [label, emoji] = moodLabel(mood);
 
   const entry = {
@@ -107,17 +111,17 @@ function saveEntry() {
     moodLabel: label,
     moodEmoji: emoji,
     energy: Number(
-      document.getElementById("energy")?.value || 0
-    ),
+      document.getElementById("energy")?.value || 1
+    ) * 10,
     anxiety: Number(
-      document.getElementById("anxiety")?.value || 0
-    ),
+      document.getElementById("anxiety")?.value || 1
+    ) * 10,
     ocd: Number(
-      document.getElementById("ocd")?.value || 0
-    ),
+      document.getElementById("ocd")?.value || 1
+    ) * 10,
     focus: Number(
-      document.getElementById("focus")?.value || 0
-    ),
+      document.getElementById("focus")?.value || 1
+    ) * 10,
     notes: notes?.value.trim() || ""
   };
 
@@ -166,10 +170,10 @@ function drawMoodChart() {
   if (entries.length === 0) {
     ctx.font = "12px Arial";
     ctx.textAlign = "center";
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-text-muted").trim();
 
     ctx.fillText(
-      "Log some moods to see your trend.",
+      "log some moods to see your trend.",
       canvas.width / 2,
       canvas.height / 2
     );
@@ -181,7 +185,7 @@ function drawMoodChart() {
   const chartWidth = canvas.width - padding * 2;
   const chartHeight = canvas.height - padding * 2;
 
-  ctx.strokeStyle = "#64748b";
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-border").trim();
   ctx.lineWidth = 1;
 
   ctx.beginPath();
@@ -190,7 +194,7 @@ function drawMoodChart() {
   ctx.lineTo(canvas.width - padding, canvas.height - padding);
   ctx.stroke();
 
-  ctx.strokeStyle = "#3b82f6";
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-accent-blue").trim();
   ctx.lineWidth = 2;
 
   ctx.beginPath();
@@ -216,7 +220,7 @@ function drawMoodChart() {
 
   ctx.stroke();
 
-  ctx.fillStyle = "#3b82f6";
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-accent-blue").trim();
 
   entries.forEach((entry, index) => {
     const x =

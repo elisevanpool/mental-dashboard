@@ -89,6 +89,9 @@ function formatTodayDueDate(dueDate) {
 // ----- Main navigation -----
 
 function showMainPage(pageId) {
+  document.getElementById("subpageContainer")?.classList.add("hidden");
+  document.querySelector(".bottom-nav")?.classList.remove("hidden");
+
   mainPages.forEach(id => {
     document.getElementById(id)?.classList.add("hidden");
   });
@@ -278,6 +281,7 @@ function openTodayQuickAdd() {
     <input
       id="todayQuickTaskInput"
       type="text"
+      autocapitalize="none"
       placeholder="What needs to be done today?"
     >
 
@@ -1926,23 +1930,7 @@ function ensureTodayDashboardLayout() {
         <p id="todayFullDate">
           ${formatTodayHeadingDate()}
         </p>
-        <div class="day-mode-picker">
 
-  <button
-    id="workDayBtn"
-    type="button"
-  >
-    💼 Work day
-  </button>
-
-  <button
-    id="offDayBtn"
-    type="button"
-  >
-    🏡 Off day
-  </button>
-
-</div>
 
       </header>
 
@@ -2104,6 +2092,10 @@ function ensureTodayDashboardLayout() {
 
       </details>
 
+      <button id="todayJournalShortcut" class="today-journal-shortcut" type="button">
+        <span>✎ daily note</span><small>open your journal</small>
+      </button>
+
     </section>
   `;
 
@@ -2111,6 +2103,12 @@ function ensureTodayDashboardLayout() {
     document.getElementById(
       "todayTrackerMount"
     );
+  // Phase 1 flow keeps check-in metrics immediately after the schedule;
+  // existing routine and checklist data remains intact below it.
+  const trackerSection = document.querySelector(".today-trackers-section");
+  const scheduleSection = document.querySelector(".today-schedule-card");
+  if (trackerSection && scheduleSection) scheduleSection.after(trackerSection);
+
 
   if (summaryCard) {
     const summaryTitle =
@@ -2542,15 +2540,47 @@ document
       ?.classList.add("active");
   });
 
-document
-  .getElementById("moreTab")
-  ?.addEventListener("click", () => {
-    showMainPage("morePage");
+const createMenu = document.getElementById("createMenu");
+const createTab = document.getElementById("createTab");
 
-    document
-      .getElementById("moreTab")
-      ?.classList.add("active");
+function setCreateMenu(open) {
+  createMenu?.classList.toggle("hidden", !open);
+  createTab?.setAttribute("aria-expanded", String(open));
+  document.body.classList.toggle("menu-open", open);
+  if (open) document.getElementById("closeCreateMenu")?.focus();
+}
+
+createTab?.addEventListener("click", () => {
+  setCreateMenu(createMenu?.classList.contains("hidden"));
+});
+document.getElementById("closeCreateMenu")?.addEventListener("click", () => setCreateMenu(false));
+createMenu?.addEventListener("click", event => {
+  if (event.target === createMenu) setCreateMenu(false);
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") setCreateMenu(false);
+});
+
+document.querySelectorAll("[data-create-action]").forEach(button => {
+  button.addEventListener("click", () => {
+    const action = button.dataset.createAction;
+    setCreateMenu(false);
+    if (action === "task") { showMainPage("todayPage"); openTodayQuickAdd(); }
+    if (action === "checklist") { showMainPage("todayPage"); renderPresetManager(); }
+    if (action === "journal") { showMainPage("journalPage"); renderJournalLandingPage(); }
+    if (action === "checkin") { showMainPage("todayPage"); document.querySelector(".today-trackers-section")?.scrollIntoView({ behavior: "smooth" }); }
+    if (action === "insights") renderInsightsPage();
+    if (action === "settings") renderSettingsPage();
+    if (action === "themes") renderThemePicker();
   });
+});
+
+document.addEventListener("click", event => {
+  if (event.target.closest("#todayJournalShortcut")) {
+    showMainPage("journalPage");
+    document.getElementById("journalTab")?.classList.add("active");
+  }
+});
 
 // ----- Start -----
 
