@@ -2,27 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Mental Dashboard</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
 
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta
+    name="theme-color"
+    content="#111827"
+  >
 
-  <link rel="stylesheet" href="style.css?v=33">
+  <title>mybrain</title>
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="apple-touch-icon.png"
+  >
+
+  <link
+    rel="stylesheet"
+    href="style.css?v=35"
+  >
 </head>
 
 <body>
 
   <div class="app">
 
-    <h1>🧠 Mental Dashboard</h1>
+    <h1>🧠 mybrain</h1>
 
     <section id="todayPage">
 
       <div class="tabs">
-        <button id="logBtn" type="button">Log</button>
-        <button id="historyBtn" type="button">History</button>
+
+        <button
+          id="logBtn"
+          type="button"
+        >
+          Log
+        </button>
+
+        <button
+          id="historyBtn"
+          type="button"
+        >
+          History
+        </button>
+
       </div>
 
       <section id="logPage">
@@ -36,25 +68,45 @@
           <div class="stats-grid">
 
             <div>
-              <div class="stat-label">Entries</div>
-              <div id="entryCount">0</div>
+              <div class="stat-label">
+                Entries
+              </div>
+
+              <div id="entryCount">
+                0
+              </div>
             </div>
 
             <div>
-              <div class="stat-label">Average</div>
-              <div id="averageMood">—</div>
+              <div class="stat-label">
+                Average
+              </div>
+
+              <div id="averageMood">
+                —
+              </div>
             </div>
 
             <div>
-              <div class="stat-label">Last check-in</div>
-              <div id="latestEntry">—</div>
+              <div class="stat-label">
+                Last check-in
+              </div>
+
+              <div id="latestEntry">
+                —
+              </div>
             </div>
 
           </div>
 
           <div class="chart-header">
+
             <h3>Mood Trend</h3>
-            <span>Last 10 entries</span>
+
+            <span>
+              Last 10 entries
+            </span>
+
           </div>
 
           <canvas
@@ -72,7 +124,10 @@
           placeholder="Anything happen today?"
         ></textarea>
 
-        <button id="saveBtn" type="button">
+        <button
+          id="saveBtn"
+          type="button"
+        >
           Save Entry
         </button>
 
@@ -82,7 +137,10 @@
 
       </section>
 
-      <section id="historyPage" class="hidden">
+      <section
+        id="historyPage"
+        class="hidden"
+      >
 
         <h2>History</h2>
 
@@ -94,47 +152,77 @@
 
     </section>
 
-    <section id="masterlistPage" class="hidden">
+    <section
+      id="masterlistPage"
+      class="hidden"
+    >
       <h2>✅ Masterlist</h2>
       <p>Coming soon...</p>
     </section>
 
-    <section id="journalPage" class="hidden">
+    <section
+      id="journalPage"
+      class="hidden"
+    >
       <h2>📖 Journal</h2>
       <p>Coming soon...</p>
     </section>
 
-    <section id="calendarPage" class="hidden">
+    <section
+      id="calendarPage"
+      class="hidden"
+    >
       <h2>📅 Calendar</h2>
       <p>Coming soon...</p>
     </section>
 
-    <section id="morePage" class="hidden">
+    <section
+      id="morePage"
+      class="hidden"
+    >
       <h2>☰ More</h2>
       <p>Coming soon...</p>
     </section>
 
-    <section id="subpageContainer" class="hidden"></section>
+    <section
+      id="subpageContainer"
+      class="hidden"
+    ></section>
 
     <nav class="bottom-nav">
 
-      <button id="todayTab" type="button">
+      <button
+        id="todayTab"
+        type="button"
+      >
         ☀️<br>Today
       </button>
 
-      <button id="masterlistTab" type="button">
+      <button
+        id="masterlistTab"
+        type="button"
+      >
         ✅<br>Masterlist
       </button>
 
-      <button id="journalTab" type="button">
+      <button
+        id="journalTab"
+        type="button"
+      >
         📖<br>Journal
       </button>
 
-      <button id="calendarTab" type="button">
+      <button
+        id="calendarTab"
+        type="button"
+      >
         📅<br>Calendar
       </button>
 
-      <button id="moreTab" type="button">
+      <button
+        id="moreTab"
+        type="button"
+      >
         ☰<br>More
       </button>
 
@@ -142,28 +230,39 @@
 
   </div>
 
+  <!-- Core app files -->
+
   <script src="utils.js"></script>
   <script src="storage.js"></script>
   <script src="history.js"></script>
   <script src="dashboard.js"></script>
   <script src="ui.js"></script>
 
-    <script src="masterlist.js?v=5"></script>
-  <script src="today.js?v=5"></script>
+  <!-- Main pages -->
+
+  <script src="masterlist.js?v=5"></script>
+  <script src="today.js?v=10"></script>
   <script src="journal.js?v=5"></script>
   <script src="calendar.js?v=5"></script>
 
-  <script src="tracker-logging.js?v=3"></script>
+  <!-- Tracker systems -->
+
+  <script src="tracker-logging.js?v=5"></script>
   <script src="sleep-tracking.js?v=1"></script>
   <script src="number-tracking.js?v=1"></script>
-  <script src="note-tracking.js?v=2"></script>
-  <script src="subpages.js?v=2"></script>
+  <script src="note-tracking.js?v=1"></script>
+  <script src="subpages.js?v=7"></script>
+
+  <!-- More-page features -->
+
   <script src="insights.js?v=5"></script>
   <script src="achievements.js?v=1"></script>
   <script src="themes.js?v=1"></script>
-  <script src="customization.js?v=1"></script>
-  <script src="settings.js?v=2"></script>
-  <script src="more.js?v=5"></script>
+  <script src="customization.js?v=3"></script>
+  <script src="settings.js?v=3"></script>
+  <script src="more.js?v=11"></script>
+
+  <!-- Navigation startup -->
 
   <script src="app.js?v=3"></script>
 
