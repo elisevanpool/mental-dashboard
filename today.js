@@ -1096,9 +1096,16 @@ function getChecklistPresets() {
       ) || "null"
     );
 
-    return Array.isArray(saved)
+    const presets = Array.isArray(saved)
       ? saved
       : defaultChecklistPresets;
+
+    return presets.filter(preset => (
+      preset &&
+      typeof preset.id === "string" &&
+      typeof preset.name === "string" &&
+      Array.isArray(preset.items)
+    ));
   } catch (error) {
     console.error(
       "Could not load checklist presets:",
@@ -1142,9 +1149,16 @@ function getTodayChecklists() {
   const todayChecklists =
     checklists[getTodayDateString()];
 
-  return Array.isArray(todayChecklists)
-    ? todayChecklists
-    : [];
+  if (!Array.isArray(todayChecklists)) {
+    return [];
+  }
+
+  return todayChecklists.filter(checklist => (
+    checklist &&
+    typeof checklist.id === "string" &&
+    typeof checklist.name === "string" &&
+    Array.isArray(checklist.items)
+  ));
 }
 
 function saveTodayChecklists(todayChecklists) {
@@ -1223,10 +1237,13 @@ function setChecklistItemComplete(
 }
 
 function renderChecklistCard(checklist) {
-  const completedCount = checklist.items.filter(
-    item => item.completed
+  const validItems = checklist.items.filter(
+    item => item && typeof item.id === "string"
+  );
+  const completedCount = validItems.filter(
+    item => item.completed === true
   ).length;
-  const totalCount = checklist.items.length;
+  const totalCount = validItems.length;
   const progress = totalCount
     ? Math.round((completedCount / totalCount) * 100)
     : 0;
@@ -1261,7 +1278,7 @@ function renderChecklistCard(checklist) {
         <span style="width: ${progress}%"></span>
       </div>
       <div class="today-checklist-items">
-        ${checklist.items.map(item => `
+        ${validItems.map(item => `
           <label class="today-checklist-item ${
             item.completed ? "completed" : ""
           }">
@@ -1289,6 +1306,15 @@ function renderTodayChecklists() {
 
   const presets = getChecklistPresets();
   const todayChecklists = getTodayChecklists();
+  const activePresetCounts = new Map();
+
+  todayChecklists.forEach(checklist => {
+    const count = activePresetCounts.get(
+      checklist.presetId
+    ) || 0;
+
+    activePresetCounts.set(checklist.presetId, count + 1);
+  });
 
   mount.innerHTML = `
     <div class="checklist-preset-picker">
@@ -1299,9 +1325,13 @@ function renderTodayChecklists() {
             class="add-checklist-preset-btn"
             data-preset-id="${escapeTodayHtml(preset.id)}"
             type="button"
+            aria-label="Add ${escapeTodayHtml(preset.name)} checklist to today"
           >
             <span>${escapeTodayHtml(preset.emoji)}</span>
             ${escapeTodayHtml(preset.name)}
+            ${activePresetCounts.get(preset.id)
+              ? `<small>${activePresetCounts.get(preset.id)} added</small>`
+              : ""}
           </button>
         `).join("")}
       </div>
