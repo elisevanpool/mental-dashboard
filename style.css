@@ -568,6 +568,7 @@ textarea {
 }
 
 .bottom-nav button {
+  position: relative;
   min-width: 0;
   border: none;
   border-radius: 12px;
@@ -5023,3 +5024,187 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .menu-open { overflow:hidden; }.today-journal-shortcut { width:100%;display:flex;justify-content:space-between;align-items:center;min-height:64px;padding:14px 18px;border:1px solid var(--theme-border);border-radius:var(--theme-radius);background:var(--theme-surface);color:var(--theme-text);font-size:16px; }.today-journal-shortcut small { color:var(--theme-text-muted); }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior:auto !important;transition-duration:.01ms !important;animation:none !important; } }
 @media (max-width:380px) { .create-menu-grid { grid-template-columns:1fr; }.brand { margin-bottom:10px; } }
+
+/* =========================================================
+   BRAINSPACE MOCKUP REFINEMENT — compact mobile daily directions
+   ========================================================= */
+:root,
+html[data-theme="midnight"] {
+  --theme-background: #17133f;
+  --theme-background-secondary: #24175a;
+  --theme-surface: #2b1c63;
+  --theme-surface-raised: #382472;
+  --theme-surface-soft: #49307f;
+  --theme-text: #f8efff;
+  --theme-text-muted: #cbbbe8;
+  --theme-border: #7f63b8;
+  --theme-accent: #a765e8;
+  --theme-accent-secondary: #ff70b7;
+  --theme-accent-pink-soft: #f7a1cf;
+  --theme-accent-blue: #86c8f4;
+  --theme-success: #9ad8c1;
+  --theme-danger: #ff7f9f;
+  --theme-glow-purple: rgba(167, 101, 232, 0.42);
+  --theme-glow-pink: rgba(255, 112, 183, 0.35);
+  --theme-shadow: rgba(10, 7, 34, 0.42);
+  --theme-glow: var(--theme-glow-purple);
+  --theme-radius: 13px;
+  --theme-spacing: 12px;
+}
+
+body {
+  background: linear-gradient(180deg, var(--theme-background-secondary), var(--theme-background) 45%);
+}
+
+.app {
+  padding: 8px 12px calc(76px + env(safe-area-inset-bottom));
+}
+
+.brand {
+  justify-content: flex-start;
+  gap: 7px;
+  margin: 0 2px 6px;
+  font-size: 16px;
+}
+
+.brand-mascot {
+  width: 30px;
+  height: 27px;
+  font-size: 16px;
+  filter: drop-shadow(0 0 8px var(--theme-glow-pink));
+}
+
+.today-dashboard-layout { gap: 8px; }
+.today-page-heading { padding: 0 3px 2px; }
+.today-page-heading h2 { font-size: 21px; }
+.today-page-heading p { margin-top: 1px; font-size: 11px; }
+
+.card,
+.history-card,
+.calendar-card,
+.masterlist-task,
+.today-task-card,
+.suggested-task,
+.today-schedule-card,
+.today-collapsible-section,
+.journal-entry-editor-card,
+.preset-manager {
+  border: 0;
+  box-shadow: 0 8px 20px var(--theme-shadow);
+}
+
+/* Summary/chart logic remains intact for its future Insights home. */
+.today-trackers-section .summary-card { display: none; }
+
+.today-schedule-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 11px;
+  background: var(--theme-surface-raised);
+}
+.today-schedule-card .today-block-heading { flex: 0 0 auto; }
+.today-schedule-card .today-block-heading h3 { font-size: 13px; }
+.today-schedule-card .today-block-heading p { display: none; }
+.today-schedule-content { min-width: 0; margin: 0 0 0 auto; }
+.today-schedule-card .empty-state { padding: 0; font-size: 11px; text-align: right; }
+
+/* Trackers are individual solid rows, without a surrounding dashboard card. */
+.today-trackers-section {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.today-trackers-section .today-block-heading { padding: 2px 3px 0; }
+.today-trackers-section .today-block-heading h3 { font-size: 14px; }
+.today-trackers-section .today-block-heading p { margin-top: 1px; }
+.today-trackers-section #sliders { margin: 5px 0; gap: 5px; }
+#sliders .card,
+#sliders .card:last-child {
+  min-height: 48px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  box-shadow: 0 4px 12px var(--theme-shadow);
+}
+.tracker-title { font-size: 12px; }
+.tracker-value { font-size: 13px; color: var(--theme-accent-pink-soft); }
+#sliders input[type="range"] { height: 21px; }
+#sliders input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+  border: 1px solid var(--theme-accent-pink-soft);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--theme-glow-pink);
+}
+#sliders input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--theme-accent-pink-soft);
+  border-radius: 2px;
+}
+#notes { height: 44px; padding: 8px 10px; border: 0 !important; border-radius: 10px; font-size: 13px; }
+#saveBtn { margin-top: 5px; padding: 8px; border-radius: 10px; font-size: 13px; }
+#saved { min-height: 0; margin: 1px 0 0; }
+
+.today-collapsible-section summary { padding: 10px 12px; font-size: 13px; }
+.today-collapsible-content { padding: 0 11px 10px; }
+.today-journal-shortcut { min-height: 44px; padding: 9px 12px; border: 0; border-radius: 11px; font-size: 13px; background: var(--theme-surface); }
+
+.bottom-nav {
+  width: min(calc(100% - 20px), 480px);
+  height: 64px;
+  padding: 7px 12px max(7px, env(safe-area-inset-bottom));
+  gap: 10px;
+  border: 0;
+  border-radius: 18px 18px 0 0;
+  background: var(--theme-surface);
+  box-shadow: 0 -8px 24px var(--theme-shadow);
+}
+.bottom-nav button {
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  min-height: 44px;
+  height: 44px;
+  justify-self: center;
+  border-radius: 50%;
+  font-size: 21px;
+}
+.bottom-nav button.active {
+  color: var(--theme-accent-pink-soft);
+  background: transparent;
+  box-shadow: none;
+}
+.bottom-nav button.active::after {
+  position: absolute;
+  right: calc(50% - 2px);
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--theme-accent-secondary);
+  content: "";
+}
+.nav-rhombus { width: 17px; height: 17px; border-width: 1px; }
+.bottom-nav .create-control {
+  color: var(--theme-background);
+  background: var(--theme-accent-secondary);
+  box-shadow: 0 0 15px var(--theme-glow-pink);
+  font-size: 27px;
+}
+
+.create-menu { border: 0; background: var(--theme-surface-raised); box-shadow: 0 14px 34px var(--theme-shadow); }
+.create-sky {
+  opacity: .42;
+  background:
+    radial-gradient(ellipse at 10% 11%, var(--theme-accent-pink-soft) 0 6%, transparent 6.5%),
+    radial-gradient(ellipse at 23% 15%, var(--theme-text) 0 9%, transparent 9.5%),
+    radial-gradient(ellipse at 88% 23%, var(--theme-accent-pink-soft) 0 10%, transparent 10.5%),
+    linear-gradient(180deg, var(--theme-background-secondary), transparent 70%);
+}
+.create-menu-grid button { border: 0; background: var(--theme-surface); }
