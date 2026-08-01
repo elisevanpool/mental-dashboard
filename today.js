@@ -2014,10 +2014,10 @@ function ensureTodayDashboardLayout() {
         <div class="today-block-heading">
 
           <div>
-            <h3>🧠 trackers</h3>
+            <h3>◇ daily directions</h3>
 
             <p>
-              Check in with yourself.
+              check in with yourself
             </p>
           </div>
 
