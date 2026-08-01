@@ -5,6 +5,10 @@
 const TRACKER_CUSTOMIZATION_KEY =
   "trackerCustomizations";
 
+// =========================================================
+// STORAGE
+// =========================================================
+
 function getTrackerCustomizations() {
   try {
     return JSON.parse(
@@ -40,9 +44,11 @@ function getTrackerCustomization(
   return customizations[trackerId] || {};
 }
 
-function getCustomizedTracker(
-  tracker
-) {
+// =========================================================
+// CUSTOMIZED TRACKER DATA
+// =========================================================
+
+function getCustomizedTracker(tracker) {
   const customization =
     getTrackerCustomization(
       tracker.id
@@ -50,6 +56,7 @@ function getCustomizedTracker(
 
   return {
     ...tracker,
+
     name:
       customization.name ||
       tracker.name,
@@ -62,6 +69,18 @@ function getCustomizedTracker(
       customization.hidden === true
   };
 }
+
+function getVisibleCustomizedTrackers() {
+  return getAllTrackers()
+    .map(getCustomizedTracker)
+    .filter(tracker => {
+      return !tracker.hidden;
+    });
+}
+
+// =========================================================
+// CUSTOMIZATION HUB
+// =========================================================
 
 function renderCustomizationHub() {
   const trackers = getAllTrackers()
@@ -85,55 +104,86 @@ function renderCustomizationHub() {
       </header>
 
       <p class="subpage-description">
-        Change tracker names, emojis,
-        labels, and visibility.
+        Change MyBrain’s theme and personalize
+        your tracker names, emojis, labels,
+        and visibility.
       </p>
 
-      <div class="customization-tracker-list">
+      <button
+        id="openThemePickerBtn"
+        class="customization-save-btn"
+        type="button"
+      >
+        🌈 Choose App Theme
+      </button>
 
-        ${trackers
-          .map(tracker => `
-            <button
-              class="customization-tracker-card"
-              type="button"
-              data-customize-tracker="${tracker.id}"
-            >
+      <section class="customization-section">
 
-              <span class="customization-tracker-icon">
-                ${escapeTrackerHtml(
-                  tracker.icon
-                )}
-              </span>
+        <div class="customization-section-header">
 
-              <span class="customization-tracker-info">
+          <h3>🧠 Trackers</h3>
 
-                <strong>
-                  ${escapeTrackerHtml(
-                    tracker.name
-                  )}
-                </strong>
+          <span>
+            ${trackers.length}
+          </span>
 
-                <small>
-                  ${getTrackerTypeLabel(
-                    tracker.type
-                  )}
-                </small>
+        </div>
 
-              </span>
+        <div class="customization-tracker-list">
 
-              <span class="customization-tracker-status">
-                ${
-                  tracker.hidden
-                    ? "Hidden"
-                    : "Visible"
-                }
-              </span>
+          ${
+            trackers.length === 0
+              ? `
+                <p class="empty-state">
+                  No trackers are available.
+                </p>
+              `
+              : trackers
+                  .map(tracker => `
+                    <button
+                      class="customization-tracker-card"
+                      type="button"
+                      data-customize-tracker="${tracker.id}"
+                    >
 
-            </button>
-          `)
-          .join("")}
+                      <span class="customization-tracker-icon">
+                        ${escapeTrackerHtml(
+                          tracker.icon
+                        )}
+                      </span>
 
-      </div>
+                      <span class="customization-tracker-info">
+
+                        <strong>
+                          ${escapeTrackerHtml(
+                            tracker.name
+                          )}
+                        </strong>
+
+                        <small>
+                          ${getTrackerTypeLabel(
+                            tracker.type
+                          )}
+                        </small>
+
+                      </span>
+
+                      <span class="customization-tracker-status">
+                        ${
+                          tracker.hidden
+                            ? "Hidden"
+                            : "Visible"
+                        }
+                      </span>
+
+                    </button>
+                  `)
+                  .join("")
+          }
+
+        </div>
+
+      </section>
 
     </section>
   `);
@@ -148,6 +198,27 @@ function renderCustomizationHub() {
     );
 
   document
+    .getElementById(
+      "openThemePickerBtn"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+        if (
+          typeof renderThemePicker ===
+          "function"
+        ) {
+          renderThemePicker();
+          return;
+        }
+
+        alert(
+          "The theme picker has not loaded yet."
+        );
+      }
+    );
+
+  document
     .querySelectorAll(
       "[data-customize-tracker]"
     )
@@ -155,22 +226,30 @@ function renderCustomizationHub() {
       button.addEventListener(
         "click",
         event => {
-          renderTrackerCustomizationEditor(
+          const trackerId =
             event.currentTarget.dataset
-              .customizeTracker
+              .customizeTracker;
+
+          renderTrackerCustomizationEditor(
+            trackerId
           );
         }
       );
     });
 }
 
+// =========================================================
+// TRACKER CUSTOMIZATION EDITOR
+// =========================================================
+
 function renderTrackerCustomizationEditor(
   trackerId
 ) {
   const originalTracker =
     getAllTrackers().find(
-      tracker =>
-        tracker.id === trackerId
+      tracker => {
+        return tracker.id === trackerId;
+      }
     );
 
   if (!originalTracker) {
@@ -372,6 +451,10 @@ function renderTrackerCustomizationEditor(
     );
 }
 
+// =========================================================
+// SAVE / RESET
+// =========================================================
+
 function saveTrackerCustomization(
   originalTracker
 ) {
@@ -425,14 +508,16 @@ function saveTrackerCustomization(
         .getElementById(
           "customTrackerLowLabel"
         )
-        ?.value.trim() || "Low";
+        ?.value.trim() ||
+      "Low";
 
     nextCustomization.highLabel =
       document
         .getElementById(
           "customTrackerHighLabel"
         )
-        ?.value.trim() || "High";
+        ?.value.trim() ||
+      "High";
   }
 
   customizations[originalTracker.id] =
@@ -445,6 +530,17 @@ function saveTrackerCustomization(
   if (message) {
     message.textContent =
       "Customization saved ✓";
+  }
+
+  /*
+    Refresh tracker cards so renamed or hidden
+    trackers update immediately.
+  */
+  if (
+    typeof renderTrackersHub ===
+    "function"
+  ) {
+    // The hub itself will re-render next time it opens.
   }
 
   setTimeout(
