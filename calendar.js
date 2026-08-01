@@ -719,6 +719,67 @@ function getTodayAssignmentCalendarEvents(dateString) {
 }
 
 // =========================================================
+// COMPLETED REUSABLE CHECKLISTS
+// =========================================================
+
+function getCompletedChecklistCalendarEvents(dateString) {
+  let records = [];
+
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(
+        "mybrainCompletedChecklists"
+      ) || "[]"
+    );
+
+    records = Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    console.error(
+      "Could not load completed checklists for Calendar:",
+      error
+    );
+  }
+
+  return records
+    .filter(record => record?.date === dateString)
+    .map(record => {
+      const items = Array.isArray(record.items)
+        ? record.items
+        : [];
+
+      return {
+        type: "completed-checklist",
+        timestamp: record.completedAt,
+        sortTime: new Date(record.completedAt).getTime() || 0,
+        html: `
+          <article class="calendar-timeline-event calendar-checklist-event">
+            <div class="calendar-event-time">
+              ${formatCalendarTime(record.completedAt)}
+            </div>
+            <div class="calendar-event-content">
+              <div class="calendar-entry-title">
+                ${escapeCalendarHtml(record.emoji || "📋")}
+                ${escapeCalendarHtml(record.name || "Checklist")}
+              </div>
+              <div class="calendar-checklist-label">
+                Checklist completed ✓
+              </div>
+              <ul class="calendar-checklist-items">
+                ${items.map(item => `
+                  <li class="${item.completed ? "completed" : ""}">
+                    ${item.completed ? "✓" : "○"}
+                    ${escapeCalendarHtml(item.name || "Checklist item")}
+                  </li>
+                `).join("")}
+              </ul>
+            </div>
+          </article>
+        `
+      };
+    });
+}
+
+// =========================================================
 // COMBINED DAY TIMELINE
 // =========================================================
 
@@ -738,6 +799,7 @@ return [
   ...trackerEvents,
   ...getHabitCalendarEvents(dateString),
   ...getSleepCalendarEvents(dateString),
+  ...getCompletedChecklistCalendarEvents(dateString),
   ...getTodayAssignmentCalendarEvents(dateString),
   ...getCompletedTaskCalendarEvents(dateString),
   ...getDueTaskCalendarEvents(dateString),
