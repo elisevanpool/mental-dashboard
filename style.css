@@ -4287,10 +4287,35 @@ body {
   color: var(--theme-text);
 }
 
-.checklist-preset-picker p {
+.checklist-preset-picker-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.checklist-preset-picker-heading p {
   margin: 0 0 9px;
   color: var(--theme-text-muted);
   font-size: 11px;
+}
+
+.checklist-preset-picker-heading p {
+  margin: 0;
+}
+
+#manageChecklistPresetsBtn,
+.preset-items-heading button {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
 }
 
 .checklist-preset-buttons {
@@ -4421,6 +4446,235 @@ body {
 .today-checklist-item.completed span {
   opacity: 0.58;
   text-decoration: line-through;
+}
+
+.preset-manager-overlay {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: max(12px, env(safe-area-inset-top)) 12px
+    max(12px, env(safe-area-inset-bottom));
+  background: rgb(0 0 0 / 58%);
+  backdrop-filter: blur(3px);
+}
+
+.preset-manager {
+  width: min(100%, 560px);
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+  padding: 18px;
+  border: 1px solid var(--theme-border);
+  border-radius: 20px 20px 14px 14px;
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 35%);
+}
+
+.preset-manager-heading,
+.preset-items-heading,
+.preset-manager-card-name,
+.preset-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preset-manager-heading {
+  margin-bottom: 14px;
+}
+
+.preset-manager-heading h3,
+.preset-manager-kicker {
+  margin: 0;
+}
+
+.preset-manager-heading h3 {
+  font-size: 20px;
+}
+
+.preset-manager-kicker {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.preset-icon-btn {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--theme-muted);
+  color: var(--theme-text);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.preset-primary-btn {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--theme-accent);
+  color: var(--theme-button-text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#newPresetBtn {
+  width: 100%;
+}
+
+.preset-manager-list,
+.preset-editor-items {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.preset-manager-card,
+.preset-editor-item {
+  padding: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-input);
+}
+
+.preset-manager-card-name {
+  justify-content: flex-start;
+}
+
+.preset-manager-card-name > span {
+  font-size: 25px;
+}
+
+.preset-manager-card-name strong,
+.preset-manager-card-name small {
+  display: block;
+}
+
+.preset-manager-card-name small {
+  margin-top: 2px;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+}
+
+.preset-manager-actions,
+.preset-item-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.preset-manager-actions button,
+.preset-item-actions button,
+.preset-editor-footer > button {
+  min-height: 44px;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--theme-muted);
+  color: var(--theme-text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.preset-delete-btn {
+  color: #d94b4b !important;
+}
+
+.preset-basics {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 10px;
+}
+
+.preset-basics label {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.preset-basics input,
+.preset-item-input {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+#presetEmojiInput {
+  text-align: center;
+}
+
+.preset-items-heading {
+  margin-top: 16px;
+}
+
+.preset-item-input {
+  margin: 0;
+}
+
+.preset-item-actions button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.preset-form-error {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: #d94b4b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.preset-editor-footer {
+  position: sticky;
+  bottom: -18px;
+  margin: 0 -18px -18px;
+  padding: 12px 18px max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-bg);
+}
+
+.preset-editor-footer > button {
+  flex: 1;
+}
+
+.preset-editor-footer .preset-primary-btn {
+  background: var(--theme-accent);
+  color: var(--theme-button-text);
+}
+
+.preset-manager button:focus-visible,
+.preset-manager input:focus-visible,
+#manageChecklistPresetsBtn:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+@media (min-width: 600px) {
+  .preset-manager-overlay {
+    align-items: center;
+  }
+
+  .preset-manager {
+    border-radius: 20px;
+  }
 }
 
 @media (max-width: 380px) {
