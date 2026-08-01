@@ -270,3 +270,39 @@ buildSliders();
 renderHistory();
 updateSummary();
 showLog();
+
+// ----- Offline app updates -----
+
+function registerMyBrainServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  let isRefreshing = false;
+
+  navigator.serviceWorker.addEventListener(
+    "controllerchange",
+    () => {
+      if (isRefreshing) return;
+
+      isRefreshing = true;
+      window.location.reload();
+    }
+  );
+
+  navigator.serviceWorker.register(
+    "./sw.js?v=7",
+    {
+      updateViaCache: "none"
+    }
+  ).then(registration => {
+    registration.update();
+  }).catch(error => {
+    console.error(
+      "Could not register service worker:",
+      error
+    );
+  });
+}
+
+registerMyBrainServiceWorker();
