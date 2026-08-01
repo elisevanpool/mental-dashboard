@@ -1054,6 +1054,8 @@ const COMPLETED_CHECKLISTS_KEY =
 
 let checklistCompletionMessageTimer = null;
 let presetEditorDraft = null;
+let activePresetItemEdit = null;
+let presetItemOriginalText = "";
 
 const defaultChecklistPresets = [
   {
@@ -1172,6 +1174,7 @@ function createPresetId() {
 function closePresetManager() {
   document.getElementById("presetManagerOverlay")?.remove();
   presetEditorDraft = null;
+  activePresetItemEdit = null;
 }
 
 function renderPresetManager() {
@@ -1233,7 +1236,7 @@ function renderPresetManager() {
       id: createPresetId(),
       name: "",
       emoji: "📋",
-      items: [""]
+      items: []
     };
     renderPresetManager();
   });
@@ -1277,96 +1280,176 @@ function renderPresetManager() {
 function syncPresetEditorDraft(editor) {
   presetEditorDraft.name = editor.querySelector("#presetNameInput").value;
   presetEditorDraft.emoji = editor.querySelector("#presetEmojiInput").value;
-  presetEditorDraft.items = [...editor.querySelectorAll(".preset-item-input")]
-    .map(input => input.value);
+  const activeInput = editor.querySelector(".preset-item-input");
+  if (activeInput && activePresetItemEdit !== null) {
+    presetEditorDraft.items[activePresetItemEdit] = activeInput.value;
+  }
 }
 
-function renderPresetEditor(overlay) {
+function renderPresetEditor(overlay, focusActiveItem = false) {
   const draft = presetEditorDraft;
+  const presets = getChecklistPresets();
+  const isExistingPreset = presets.some(preset => preset.id === draft.id);
 
   overlay.innerHTML = `
     <section class="preset-manager preset-editor" role="dialog" aria-modal="true"
       aria-labelledby="presetEditorTitle">
-      <div class="preset-manager-heading">
-        <div>
-          <p class="preset-manager-kicker">Preset editor</p>
-          <h3 id="presetEditorTitle">Customize preset</h3>
-        </div>
-        <button class="preset-icon-btn" id="cancelPresetEditorBtn"
-          type="button" aria-label="Cancel editing">✕</button>
+      <div class="preset-editor-header">
+        <button class="preset-header-action" id="cancelPresetEditorBtn"
+          type="button">Cancel</button>
+        <h3 id="presetEditorTitle">Edit Preset</h3>
+        <button class="preset-header-action preset-header-save" type="submit"
+          form="presetEditorForm">Save</button>
       </div>
       <form id="presetEditorForm">
-        <div class="preset-basics">
-          <label>Emoji
+        <section class="preset-editor-section preset-basics" aria-labelledby="presetDetailsTitle">
+          <h4 id="presetDetailsTitle">Preset details</h4>
+          <label class="preset-emoji-field">Emoji
             <input id="presetEmojiInput" value="${escapeTodayHtml(draft.emoji)}"
               maxlength="12" inputmode="text" aria-label="Preset emoji">
           </label>
-          <label>Name
+          <label class="preset-name-field">Preset name
             <input id="presetNameInput" value="${escapeTodayHtml(draft.name)}"
               maxlength="80" required placeholder="Preset name">
           </label>
-        </div>
+        </section>
         <div class="preset-items-heading">
           <strong>Checklist items</strong>
-          <button id="addPresetItemBtn" type="button">＋ Add item</button>
+          <button id="addPresetItemBtn" type="button">＋ Add new item</button>
         </div>
         <div class="preset-editor-items">
           ${draft.items.map((item, index) => `
-            <div class="preset-editor-item">
-              <input class="preset-item-input" value="${escapeTodayHtml(item)}"
-                maxlength="120" required placeholder="Checklist item"
-                aria-label="Checklist item ${index + 1}">
-              <div class="preset-item-actions">
-                <button type="button" data-move-up="${index}"
-                  ${index === 0 ? "disabled" : ""}>↑ Up</button>
-                <button type="button" data-move-down="${index}"
-                  ${index === draft.items.length - 1 ? "disabled" : ""}>↓ Down</button>
-                <button class="preset-delete-btn" type="button"
-                  data-remove-item="${index}">Remove</button>
+            <div class="preset-editor-item${activePresetItemEdit === index ? " is-editing" : ""}">
+              ${activePresetItemEdit === index ? `
+                <input class="preset-item-input" value="${escapeTodayHtml(item)}"
+                  maxlength="120" required placeholder="Checklist item"
+                  aria-label="Checklist item ${index + 1}">
+                <div class="preset-item-edit-actions">
+                  <button class="preset-row-save" type="button" data-save-item="${index}">Save</button>
+                  <button type="button" data-cancel-item="${index}">Cancel</button>
+                </div>
+              ` : `
+                <span class="preset-item-text">${escapeTodayHtml(item)}</span>
+                <div class="preset-item-actions">
+                  <button type="button" data-move-up="${index}" title="Move up"
+                    aria-label="Move item ${index + 1} up" ${index === 0 ? "disabled" : ""}>↑</button>
+                  <button type="button" data-move-down="${index}" title="Move down"
+                    aria-label="Move item ${index + 1} down" ${index === draft.items.length - 1 ? "disabled" : ""}>↓</button>
+                  <button type="button" data-edit-item="${index}" title="Edit"
+                    aria-label="Edit item ${index + 1}">✎</button>
+                  <button class="preset-delete-btn" type="button" title="Delete"
+                    aria-label="Delete item ${index + 1}" data-remove-item="${index}">⌫</button>
+                </div>
+              `}
               </div>
-            </div>
           `).join("")}
+          ${draft.items.length ? "" : `<p class="preset-empty-items">No items yet. Add your first checklist item.</p>`}
         </div>
         <p class="preset-form-error" id="presetFormError" role="alert"></p>
-        <div class="preset-editor-footer">
-          <button id="backToPresetsBtn" type="button">Cancel</button>
-          <button class="preset-primary-btn" type="submit">Save preset</button>
-        </div>
+        <section class="preset-editor-section preset-actions-section" aria-labelledby="presetActionsTitle">
+          <h4 id="presetActionsTitle">Preset actions</h4>
+          <div class="preset-actions-grid">
+            <button id="duplicatePresetEditorBtn" type="button">⧉ <span>Duplicate</span></button>
+            <button id="previewPresetBtn" type="button">◉ <span>Preview</span></button>
+            <button class="preset-delete-btn" id="deletePresetEditorBtn" type="button"
+              ${isExistingPreset ? "" : "disabled"}>⌫ <span>Delete preset</span></button>
+          </div>
+          <div class="preset-preview" id="presetPreview" hidden></div>
+        </section>
+        <p class="preset-editor-note">Changes to this preset won’t affect checklists already added to Today or previously completed records.</p>
       </form>
     </section>`;
 
   const editor = overlay.querySelector(".preset-editor");
   const goBack = () => {
     presetEditorDraft = null;
+    activePresetItemEdit = null;
     renderPresetManager();
   };
   overlay.querySelector("#cancelPresetEditorBtn").addEventListener("click", goBack);
-  overlay.querySelector("#backToPresetsBtn").addEventListener("click", goBack);
   overlay.querySelector("#addPresetItemBtn").addEventListener("click", () => {
     syncPresetEditorDraft(editor);
+    if (activePresetItemEdit !== null && !draft.items[activePresetItemEdit].trim()) {
+      overlay.querySelector(".preset-item-input")?.focus();
+      return;
+    }
     presetEditorDraft.items.push("");
-    renderPresetManager();
-    overlay.querySelector(".preset-item-input:last-of-type")?.focus();
+    activePresetItemEdit = presetEditorDraft.items.length - 1;
+    presetItemOriginalText = "";
+    renderPresetEditor(overlay, true);
   });
   overlay.querySelectorAll("[data-remove-item]").forEach(button => {
     button.addEventListener("click", () => {
       syncPresetEditorDraft(editor);
       presetEditorDraft.items.splice(Number(button.dataset.removeItem), 1);
-      renderPresetManager();
+      activePresetItemEdit = null;
+      renderPresetEditor(overlay);
     });
+  });
+  overlay.querySelectorAll("[data-edit-item]").forEach(button => {
+    button.addEventListener("click", () => {
+      syncPresetEditorDraft(editor);
+      activePresetItemEdit = Number(button.dataset.editItem);
+      presetItemOriginalText = draft.items[activePresetItemEdit];
+      renderPresetEditor(overlay, true);
+    });
+  });
+  const saveActiveItem = () => {
+    const input = overlay.querySelector(".preset-item-input");
+    const value = input?.value.trim() || "";
+    if (!value) {
+      overlay.querySelector("#presetFormError").textContent = "Checklist items cannot be empty.";
+      input?.focus();
+      return;
+    }
+    draft.items[activePresetItemEdit] = value;
+    activePresetItemEdit = null;
+    renderPresetEditor(overlay);
+  };
+  overlay.querySelector("[data-save-item]")?.addEventListener("click", saveActiveItem);
+  overlay.querySelector("[data-cancel-item]")?.addEventListener("click", () => {
+    if (presetItemOriginalText) draft.items[activePresetItemEdit] = presetItemOriginalText;
+    else draft.items.splice(activePresetItemEdit, 1);
+    activePresetItemEdit = null;
+    renderPresetEditor(overlay);
+  });
+  overlay.querySelector(".preset-item-input")?.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    saveActiveItem();
   });
   const moveItem = (button, offset) => {
     syncPresetEditorDraft(editor);
     const index = Number(button.dataset.moveUp ?? button.dataset.moveDown);
     const [item] = presetEditorDraft.items.splice(index, 1);
     presetEditorDraft.items.splice(index + offset, 0, item);
-    renderPresetManager();
+    activePresetItemEdit = null;
+    renderPresetEditor(overlay);
   };
   overlay.querySelectorAll("[data-move-up]").forEach(button => {
     button.addEventListener("click", () => moveItem(button, -1));
   });
   overlay.querySelectorAll("[data-move-down]").forEach(button => {
     button.addEventListener("click", () => moveItem(button, 1));
+  });
+  overlay.querySelector("#duplicatePresetEditorBtn").addEventListener("click", () => {
+    syncPresetEditorDraft(editor);
+    presetEditorDraft.id = createPresetId();
+    presetEditorDraft.name = `${presetEditorDraft.name.trim() || "Untitled Preset"} Copy`;
+    activePresetItemEdit = null;
+    renderPresetEditor(overlay);
+  });
+  overlay.querySelector("#previewPresetBtn").addEventListener("click", () => {
+    syncPresetEditorDraft(editor);
+    const preview = overlay.querySelector("#presetPreview");
+    preview.innerHTML = `<strong>${escapeTodayHtml(draft.emoji || "📋")} ${escapeTodayHtml(draft.name || "Untitled Preset")}</strong><ul>${draft.items.filter(item => item.trim()).map(item => `<li>○ ${escapeTodayHtml(item.trim())}</li>`).join("") || "<li>No checklist items yet</li>"}</ul>`;
+    preview.hidden = !preview.hidden;
+  });
+  overlay.querySelector("#deletePresetEditorBtn").addEventListener("click", () => {
+    if (!isExistingPreset || !window.confirm(`Delete “${draft.name}”? This cannot be undone.`)) return;
+    saveChecklistPresets(presets.filter(preset => preset.id !== draft.id));
+    goBack();
+    renderTodayChecklists();
   });
   overlay.querySelector("#presetEditorForm").addEventListener("submit", event => {
     event.preventDefault();
@@ -1378,6 +1461,11 @@ function renderPresetEditor(overlay) {
     if (!name) {
       error.textContent = "Please enter a preset name.";
       overlay.querySelector("#presetNameInput").focus();
+      return;
+    }
+    if (activePresetItemEdit !== null) {
+      error.textContent = "Save or cancel the item you’re editing first.";
+      overlay.querySelector(".preset-item-input")?.focus();
       return;
     }
     if (!items.length || items.some(item => !item)) {
@@ -1398,11 +1486,12 @@ function renderPresetEditor(overlay) {
     else presets.push(savedPreset);
     saveChecklistPresets(presets);
     presetEditorDraft = null;
+    activePresetItemEdit = null;
     renderTodayChecklists();
     renderPresetManager();
   });
 
-  overlay.querySelector("#presetNameInput").focus();
+  if (focusActiveItem) overlay.querySelector(".preset-item-input")?.focus();
 }
 
 function getAllDailyChecklists() {
