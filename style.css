@@ -4266,6 +4266,20 @@ body {
   font-size: 18px;
 }
 
+.add-checklist-preset-btn small {
+  display: block;
+  margin-top: 4px;
+  color: var(--theme-text-muted);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.add-checklist-preset-btn:hover,
+.add-checklist-preset-btn:focus-visible {
+  border-color: var(--theme-accent);
+  outline: none;
+}
+
 .active-today-checklists {
   display: grid;
   gap: 10px;
@@ -4309,6 +4323,12 @@ body {
   color: var(--theme-text);
   font-size: 10px;
   cursor: pointer;
+}
+
+.remove-checklist-btn:focus-visible,
+.today-checklist-item input:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
 }
 
 .checklist-progress-track {
