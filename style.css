@@ -4341,6 +4341,8 @@ body {
   margin: 0;
 }
 
+.checklist-preset-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+
 #manageChecklistPresetsBtn,
 .preset-items-heading button {
   min-height: 42px;
@@ -4675,6 +4677,21 @@ body {
 .preset-manager-card-name > span {
   font-size: 25px;
 }
+
+.preset-manager-card-name > div { min-width: 0; flex: 1; }
+.preset-favorite-btn { width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 50%; background: var(--theme-muted); color: var(--theme-text-muted); font-size: 20px; }
+.preset-favorite-btn.active { color: var(--theme-accent); }
+.preset-search input { width: 100%; min-height: 48px; margin-top: 14px; padding: 10px 14px; border: 1px solid var(--theme-border); border-radius: 13px; background: var(--theme-input); color: var(--theme-text); font-size: 16px; box-sizing: border-box; }
+.preset-filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.preset-filters button, .hidden-starters button { min-height: 44px; border: 0; border-radius: 11px; background: var(--theme-muted); color: var(--theme-text); font-weight: 700; }
+.preset-filters button.active { background: var(--theme-accent); color: var(--theme-button-text); }
+.preset-library .preset-manager-actions { grid-template-columns: repeat(3, 1fr); }
+.preset-library .preset-manager-actions button:nth-last-child(-n + 2) { grid-column: span 1; }
+.preset-library-empty { display: grid; justify-items: center; gap: 6px; padding: 36px 18px; color: var(--theme-text-muted); text-align: center; }
+.preset-library-empty span { font-size: 32px; }.preset-library-empty p { margin: 0; }
+.hidden-starters { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--theme-border); }.hidden-starters h4 { margin: 0 0 9px; }.hidden-starters button { width: 100%; margin-top: 6px; }
+.preset-confirm-backdrop { position: fixed; z-index: 2; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(0 0 0 / 62%); }
+.preset-confirm { width: min(100%, 360px); padding: 20px; border: 1px solid var(--theme-border); border-radius: 18px; background: var(--theme-surface); color: var(--theme-text); box-shadow: var(--theme-shadow); }.preset-confirm h4 { margin: 0; font-size: 18px; }.preset-confirm p { color: var(--theme-text-muted); line-height: 1.5; }.preset-confirm div { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }.preset-confirm button { min-height: 46px; border: 0; border-radius: 11px; background: var(--theme-muted); color: var(--theme-text); font-weight: 750; }
 
 .preset-manager-card-name strong,
 .preset-manager-card-name small {
