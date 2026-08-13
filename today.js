@@ -1057,6 +1057,7 @@ const COMPLETED_CHECKLISTS_KEY =
   "mybrainCompletedChecklists";
 
 let checklistCompletionMessageTimer = null;
+const completingChecklistIds = new Set();
 let presetEditorDraft = null;
 let activePresetItemEdit = null;
 let presetItemOriginalText = "";
@@ -1653,6 +1654,8 @@ function setChecklistItemComplete(
   itemId,
   completed
 ) {
+  if (completingChecklistIds.has(instanceId)) return;
+
   const todayChecklists = getTodayChecklists();
   const checklist = todayChecklists.find(
     item => item.id === instanceId
@@ -1672,22 +1675,95 @@ function setChecklistItemComplete(
     validItems.every(item => item.completed === true);
 
   if (isComplete) {
+    completingChecklistIds.add(instanceId);
     const archived = archiveCompletedChecklist(checklist);
 
+    // Persist both the calendar record and Today removal before animation. If
+    // the app closes during the celebration, the completed history is safe.
     saveTodayChecklists(
       todayChecklists.filter(item => item.id !== instanceId)
     );
-    renderTodayChecklists();
 
-    if (archived) {
-      showChecklistCompletionMessage(checklist.name);
-    }
+    celebrateCompletedChecklist(
+      instanceId,
+      checklist.name,
+      archived
+    );
 
     return;
   }
 
   saveTodayChecklists(todayChecklists);
   renderTodayChecklists();
+}
+
+function celebrateCompletedChecklist(
+  instanceId,
+  checklistName,
+  archived
+) {
+  const card = document.querySelector(
+    `.today-checklist-card[data-checklist-id="${CSS.escape(instanceId)}"]`
+  );
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (!card) {
+    completingChecklistIds.delete(instanceId);
+    renderTodayChecklists();
+    if (archived) showChecklistCompletionMessage(checklistName);
+    return;
+  }
+
+  card.querySelectorAll("input, button").forEach(control => {
+    control.disabled = true;
+  });
+  card.querySelectorAll(".today-checklist-item")
+    .forEach(item => item.classList.add("completed"));
+
+  const progress = card.querySelector(".checklist-progress-track");
+  const progressFill = progress?.querySelector("span");
+  const count = card.querySelector(".today-checklist-heading p");
+  const itemCount = card.querySelectorAll(
+    ".today-checklist-item"
+  ).length;
+
+  if (progress) progress.setAttribute("aria-valuenow", "100");
+  if (progressFill) progressFill.style.width = "100%";
+  if (count) count.textContent = `${itemCount} of ${itemCount} complete`;
+
+  if (!reducedMotion) {
+    const burst = document.createElement("div");
+    burst.className = "checklist-sparkle-burst";
+    burst.setAttribute("aria-hidden", "true");
+    burst.innerHTML = [
+      ["-62px", "-30px"], ["-42px", "-55px"],
+      ["-12px", "-48px"], ["18px", "-58px"],
+      ["48px", "-37px"], ["62px", "-5px"],
+      ["46px", "28px"], ["15px", "39px"],
+      ["-20px", "35px"], ["-52px", "18px"]
+    ].map(([x, y], index) => (
+      `<i style="--spark-x:${x};--spark-y:${y};--spark-delay:${index * 22}ms">${index % 2 ? "✦" : "✧"}</i>`
+    )).join("");
+    card.appendChild(burst);
+    card.classList.add("is-celebrating");
+  } else {
+    card.classList.add("is-complete-reduced");
+  }
+
+  const celebrationTime = reducedMotion ? 500 : 850;
+  window.setTimeout(() => {
+    card.style.maxHeight = `${card.scrollHeight}px`;
+    card.offsetHeight;
+    card.classList.add("is-dismissing");
+
+    window.setTimeout(() => {
+      completingChecklistIds.delete(instanceId);
+      renderTodayChecklists();
+      if (archived) showChecklistCompletionMessage(checklistName);
+    }, reducedMotion ? 220 : 350);
+  }, celebrationTime);
 }
 
 function showChecklistCompletionMessage(checklistName) {
@@ -1720,7 +1796,7 @@ function renderChecklistCard(checklist) {
     : 0;
 
   return `
-    <article class="today-checklist-card">
+    <article class="today-checklist-card" data-checklist-id="${escapeTodayHtml(checklist.id)}">
       <div class="today-checklist-heading">
         <div>
           <h4>
