@@ -2,7 +2,7 @@
 // MyBrain Service Worker
 // =====================
 
-const CACHE_NAME = "mybrain-v13";
+const CACHE_NAME = "mybrain-v14";
 
 const APP_FILES = [
   "./",
