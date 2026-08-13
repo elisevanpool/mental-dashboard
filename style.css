@@ -5329,3 +5329,131 @@ body {
     linear-gradient(180deg, var(--theme-background-secondary), transparent 70%);
 }
 .create-menu-grid button { border: 0; background: var(--theme-surface); }
+
+/* Custom checklist preset creator */
+#createChecklistPresetBtn {
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.preset-creator {
+  background: var(--theme-surface);
+}
+
+.preset-creator-hint {
+  margin: -5px 0 16px;
+  color: var(--theme-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.preset-creator .preset-basics {
+  grid-template-columns: 110px minmax(0, 1fr);
+}
+
+.preset-creator .preset-basics label {
+  color: var(--theme-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.preset-creator .preset-basics input,
+.preset-creator .preset-item-input {
+  background: var(--theme-input);
+  color: var(--theme-text);
+}
+
+.preset-creator .preset-editor-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  background: var(--theme-input);
+}
+
+.preset-creator .preset-item-actions {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+}
+
+.preset-creator .preset-item-actions button {
+  width: 40px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 18px;
+}
+
+.preset-field-error {
+  display: block;
+  min-height: 16px;
+  margin-top: 4px;
+  color: #d94b4b;
+  font-size: 11px;
+}
+
+.preset-creator .preset-editor-footer {
+  background: var(--theme-surface);
+}
+
+#createChecklistPresetBtn:focus-visible,
+.preset-creator button:focus-visible,
+.preset-creator input:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 430px) {
+  .preset-manager-overlay {
+    padding-inline: 8px;
+  }
+
+  .preset-creator {
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top));
+    padding: 16px;
+    border-radius: 20px 20px 12px 12px;
+  }
+
+  .preset-creator .preset-basics {
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+
+  .preset-creator .preset-editor-item {
+    padding: 9px;
+  }
+
+  .preset-creator .preset-editor-footer {
+    bottom: -16px;
+    margin: 4px -16px -16px;
+    padding-inline: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preset-manager-overlay,
+  .preset-manager {
+    animation: none !important;
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
