@@ -237,6 +237,41 @@ html[data-theme="dreamhouse"] {
   --glass: rgba(255, 255, 255, 0.055);
 }
 
+/* Celebration colors stay tied to each theme's existing palette. */
+:root,
+html[data-theme="midnight"] {
+  --checklist-particle-1: var(--theme-text);
+  --checklist-particle-2: var(--theme-accent-blue);
+  --checklist-particle-3: var(--theme-accent-secondary);
+}
+
+html[data-theme="cotton-candy"] {
+  --checklist-particle-1: var(--text-secondary);
+  --checklist-particle-2: var(--accent);
+  --checklist-particle-3: var(--accent-strong);
+}
+
+html[data-theme="cottagecore"] {
+  --checklist-particle-1: var(--text-accent);
+  --checklist-particle-2: var(--accent);
+  --checklist-particle-3: var(--text-muted);
+}
+
+html[data-theme="dreamhouse"] {
+  --checklist-particle-1: var(--text-primary);
+  --checklist-particle-2: var(--accent);
+  --checklist-particle-3: var(--accent-strong);
+}
+
+html[data-theme="forest"],
+html[data-theme="ocean"],
+html[data-theme="sunset"],
+html[data-theme="cozy-cafe"] {
+  --checklist-particle-1: var(--text-primary);
+  --checklist-particle-2: var(--accent);
+  --checklist-particle-3: var(--text-accent);
+}
+
 /* ----- Base ----- */
 
 * {
@@ -4406,21 +4441,32 @@ body {
 
 .checklist-sparkle-burst i {
   position: absolute;
-  color: var(--theme-accent);
-  font-size: 12px;
+  color: var(--checklist-particle-1);
+  font-size: 13px;
   font-style: normal;
   line-height: 1;
   opacity: 0;
-  filter: drop-shadow(0 0 3px var(--theme-glow));
+  filter: drop-shadow(0 0 4px currentColor);
   animation: checklist-sparkle 0.62s ease-out var(--spark-delay) both;
 }
 
 .checklist-sparkle-burst i:nth-child(3n + 2) {
-  color: var(--theme-accent-secondary);
+  color: var(--checklist-particle-2);
 }
 
 .checklist-sparkle-burst i:nth-child(3n) {
-  color: var(--theme-accent-blue);
+  color: var(--checklist-particle-3);
+}
+
+.checklist-sparkle-burst .particle-sparkle {
+  font-size: 10px;
+}
+
+.checklist-sparkle-burst .particle-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 @keyframes checklist-card-pop {

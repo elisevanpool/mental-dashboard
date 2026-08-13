@@ -1737,15 +1737,25 @@ function celebrateCompletedChecklist(
     const burst = document.createElement("div");
     burst.className = "checklist-sparkle-burst";
     burst.setAttribute("aria-hidden", "true");
-    burst.innerHTML = [
-      ["-62px", "-30px"], ["-42px", "-55px"],
-      ["-12px", "-48px"], ["18px", "-58px"],
-      ["48px", "-37px"], ["62px", "-5px"],
-      ["46px", "28px"], ["15px", "39px"],
-      ["-20px", "35px"], ["-52px", "18px"]
-    ].map(([x, y], index) => (
-      `<i style="--spark-x:${x};--spark-y:${y};--spark-delay:${index * 22}ms">${index % 2 ? "✦" : "✧"}</i>`
-    )).join("");
+    const burstWidth = Math.min(card.offsetWidth * 0.52, 190);
+    const burstHeight = Math.min(card.offsetHeight * 0.72, 105);
+    const particles = [
+      [-1, -0.28, "star"], [-0.82, -0.72, "sparkle"],
+      [-0.55, -0.96, "star"], [-0.22, -0.72, "dot"],
+      [0.12, -1, "sparkle"], [0.48, -0.82, "star"],
+      [0.82, -0.55, "dot"], [1, -0.12, "star"],
+      [0.9, 0.42, "sparkle"], [0.65, 0.82, "star"],
+      [0.28, 1, "dot"], [-0.08, 0.8, "sparkle"],
+      [-0.42, 0.92, "star"], [-0.72, 0.65, "dot"],
+      [-0.96, 0.28, "sparkle"], [0.45, -0.28, "star"]
+    ];
+
+    burst.innerHTML = particles.map(([x, y, shape], index) => {
+      const symbol = shape === "star" ? "✦" : shape === "sparkle" ? "✧" : "";
+      const delay = (index % 9) * 22;
+
+      return `<i class="particle-${shape}" style="--spark-x:${Math.round(x * burstWidth)}px;--spark-y:${Math.round(y * burstHeight)}px;--spark-delay:${delay}ms">${symbol}</i>`;
+    }).join("");
     card.appendChild(burst);
     card.classList.add("is-celebrating");
   } else {
